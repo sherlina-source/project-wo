@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>In Progress - WO System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">📋</span>
+                    <h2>WO<span>System</span></h2>
+                </div>
+        </div>
+        
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="work-orders.html" class="nav-item active">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">Work Orders</span>
+                    <span class="nav-badge">12</span>
+                </a>
+                <a href="in-progress.html" class="nav-item">
+                    <span class="nav-icon">⏳</span>
+                    <span class="nav-text">In Progress</span>
+                    <span class="nav-badge">5</span>
+                </a>
+                <a href="completed.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span class="nav-text">Completed</span>
+                    <span class="nav-badge">23</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="notifications.html" class="nav-item">
+                    <span class="nav-icon">🔔</span>
+                    <span class="nav-text">Notifications</span>
+                    <span class="nav-badge">3</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+
+                <div class="page-info">
+                    <h1 class="page-title">In Progress</h1>
+                    <div class="breadcrumb">
+                        <span>Work Orders</span> / <span class="current">In Progress</span>
+                    </div>
+                </div>
+                <div class="top-actions">
+                    <!-- ... top actions ... -->
+                </div>
+            </header>
+
+            <!-- In Progress Content -->
+            <div class="progress-container">
+                <!-- Kanban Board -->
+                <div class="kanban-board">
+                    <!-- To Do Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <h3>To Do</h3>
+                            <span class="count" id="todoCount">0</span>
+                        </div>
+                        <div class="column-body" id="todoList">
+                            <!-- Dynamic cards -->
+                        </div>
+                    </div>
+
+                    <!-- In Progress Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <h3>In Progress</h3>
+                            <span class="count" id="progressCount">0</span>
+                        </div>
+                        <div class="column-body" id="progressList">
+                            <!-- Dynamic cards -->
+                        </div>
+                    </div>
+
+                    <!-- Review Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <h3>Review</h3>
+                            <span class="count" id="reviewCount">0</span>
+                        </div>
+                        <div class="column-body" id="reviewList">
+                            <!-- Dynamic cards -->
+                        </div>
+                    </div>
+
+                    <!-- Done Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <h3>Done</h3>
+                            <span class="count" id="doneCount">0</span>
+                        </div>
+                        <div class="column-body" id="doneList">
+                            <!-- Dynamic cards -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline View -->
+                <div class="timeline-section" style="background: white; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                    <h3 style="margin-bottom: 15px;">Today's Schedule</h3>
+                    <div class="timeline-list" id="todaySchedule">
+                        <!-- Dynamic timeline items -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Panel -->
+            <div class="notifications-panel" id="notificationsPanel">
+                <!-- ... -->
+            </div>
+        </main>
+    </div>
+
+    <audio id="notificationSound" src="/sounds/notification 1.wav" preload="auto"></audio>
+    <script src="js/main.js"></script>
+    <script src="js/inprogress.js"></script>
+</body>
+</html>

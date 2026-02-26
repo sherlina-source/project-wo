@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Completed - WO System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">📋</span>
+                    <h2>WO<span>System</span></h2>
+                </div>
+        </div>
+
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="work-orders.html" class="nav-item active">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">Work Orders</span>
+                    <span class="nav-badge">12</span>
+                </a>
+                <a href="in-progress.html" class="nav-item">
+                    <span class="nav-icon">⏳</span>
+                    <span class="nav-text">In Progress</span>
+                    <span class="nav-badge">5</span>
+                </a>
+                <a href="completed.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span class="nav-text">Completed</span>
+                    <span class="nav-badge">23</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="notifications.html" class="nav-item">
+                    <span class="nav-icon">🔔</span>
+                    <span class="nav-text">Notifications</span>
+                    <span class="nav-badge">3</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Settings</span>
+                </a>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+
+                <div class="page-info">
+                    <h1 class="page-title">Completed Work Orders</h1>
+                    <div class="breadcrumb">
+                        <span>Work Orders</span> / <span class="current">Completed</span>
+                    </div>
+                </div>
+                <div class="top-actions">
+                    <!-- ... -->
+                </div>
+            </header>
+
+            <!-- Completed Content -->
+            <div class="completed-container">
+                <!-- Summary Cards -->
+                <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-content">
+                            <span class="stat-label">Completed This Month</span>
+                            <span class="stat-value" id="completedMonth">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-content">
+                            <span class="stat-label">Avg. Completion Time</span>
+                            <span class="stat-value" id="avgTime">0 days</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-content">
+                            <span class="stat-label">Satisfaction Rate</span>
+                            <span class="stat-value" id="satisfaction">96%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Completed List -->
+                <div class="workorders-container" style="margin-top: 20px;">
+                    <div class="list-header" style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                        <h3>Completed Work Orders</h3>
+                        <select class="form-input" style="width: auto;" id="timeFilter">
+                            <option>This Week</option>
+                            <option>This Month</option>
+                            <option>This Year</option>
+                            <option>All Time</option>
+                        </select>
+                    </div>
+                    
+                    <div class="completed-items" id="completedItems">
+                        <!-- Dynamic completed items -->
+                    </div>
+                </div>
+
+                <!-- Performance Chart -->
+                <div class="chart-card" style="background: white; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                    <h3 style="margin-bottom: 15px;">Completion Trends</h3>
+                    <canvas id="completionChart" style="height: 300px;"></canvas>
+                </div>
+            </div>
+
+            <!-- Notifications Panel -->
+            <div class="notifications-panel" id="notificationsPanel">
+                <!-- ... -->
+            </div>
+        </main>
+    </div>
+
+    <audio id="notificationSound" src="sounds/notification 1.wav" preload="auto"></audio>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/completed.js"></script>
+</body>
+</html>

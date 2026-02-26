@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notifications - WO System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">📋</span>
+                    <h2>WO<span>System</span></h2>
+                </div>
+            </div>
+        
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+        
+                <a href="work-orders.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">Work Orders</span>
+                    <span class="nav-badge">12</span>
+                </a>
+        
+                <a href="in-progress.html" class="nav-item">
+                    <span class="nav-icon">⏳</span>
+                    <span class="nav-text">In Progress</span>
+                    <span class="nav-badge">5</span>
+                </a>
+        
+                <a href="completed.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span class="nav-text">Completed</span>
+                    <span class="nav-badge">23</span>
+                </a>
+        
+                <div class="nav-divider"></div>
+        
+                <a href="notifications.html" class="nav-item active">
+                    <span class="nav-icon">🔔</span>
+                    <span class="nav-text">Notifications</span>
+                    <span class="nav-badge">3</span>
+                </a>
+        
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Settings</span>
+                </a>
+            </nav>
+        </aside>
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+
+                <div class="page-info">
+                    <h1 class="page-title">Notifications</h1>
+                    <div class="breadcrumb">
+                        <span class="current">Notifications</span>
+                    </div>
+                </div>
+                <div class="top-actions">
+                    <!-- ... -->
+                </div>
+            </header>
+
+            <!-- Notifications Content -->
+            <div class="notifications-full" style="background: white; border-radius: 10px; padding: 20px;">
+                <!-- Notification Header -->
+                <div class="notif-header" style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                    <div class="notif-tabs" style="display: flex; gap: 10px;">
+                        <button class="filter-tab active" data-type="all">All</button>
+                        <button class="filter-tab" data-type="unread">Unread</button>
+                        <button class="filter-tab" data-type="mentions">Mentions</button>
+                    </div>
+                    <div class="notif-actions">
+                        <button class="btn btn-outline" id="markAllReadFull">
+                            <span>✓</span> Mark All Read
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Notification List -->
+                <div class="notif-list-full" id="fullNotificationList">
+                    <!-- Dynamic notifications -->
+                </div>
+
+                <!-- Load More -->
+                <div class="load-more" style="text-align: center; margin-top: 20px;">
+                    <button class="btn btn-secondary" id="loadMore">Load More</button>
+                </div>
+            </div>
+
+            <!-- Notifications Panel -->
+            <div class="notifications-panel" id="notificationsPanel">
+                <!-- ... -->
+            </div>
+        </main>
+    </div>
+
+    <audio id="notificationSound" src="sounds/notification 1.wav" preload="auto"></audio>
+    <script src="js/main.js"></script>
+    <script src="js/notifications.js"></script>
+</body>
+</html>

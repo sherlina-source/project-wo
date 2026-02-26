@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - WO System</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <span class="logo-icon">📋</span>
+                    <h2>WO<span>System</span></h2>
+                </div> 
+        </div>
+
+            <nav class="sidebar-nav">
+                <a href="index.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                <a href="work-orders.html" class="nav-item active">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">Work Orders</span>
+                    <span class="nav-badge">12</span>
+                </a>
+                <a href="in-progress.html" class="nav-item">
+                    <span class="nav-icon">⏳</span>
+                    <span class="nav-text">In Progress</span>
+                    <span class="nav-badge">5</span>
+                </a>
+                <a href="completed.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span class="nav-text">Completed</span>
+                    <span class="nav-badge">23</span>
+                </a>
+                <div class="nav-divider"></div>
+                <a href="notifications.html" class="nav-item">
+                    <span class="nav-icon">🔔</span>
+                    <span class="nav-text">Notifications</span>
+                    <span class="nav-badge">3</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+
+                <div class="page-info">
+                    <h1 class="page-title">Settings</h1>
+                    <div class="breadcrumb">
+                        <span class="current">Settings</span>
+                    </div>
+                </div>
+                <div class="top-actions">
+                    <!-- ... -->
+                </div>
+            </header>
+
+            <!-- Settings Content -->
+            <div class="settings-container">
+                <div class="settings-sidebar">
+                    <div class="settings-nav">
+                        <a href="#" class="settings-nav-item active" data-section="profile">
+                            <span>👤</span> Profile
+                        </a>
+                        <a href="#" class="settings-nav-item" data-section="notifications">
+                            <span>🔔</span> Notifications
+                        </a>
+                        <a href="#" class="settings-nav-item" data-section="appearance">
+                            <span>🎨</span> Appearance
+                        </a>
+                        <a href="#" class="settings-nav-item" data-section="security">
+                            <span>🔒</span> Security
+                        </a>
+                    </div>
+                </div>
+
+                <div class="settings-content">
+                    <!-- Profile Section -->
+                    <div class="settings-section active" id="profile">
+                        <h2>Profile Settings</h2>
+                        <div class="settings-form">
+                            <div class="avatar-upload" style="display: flex; align-items: center; gap: 20px; margin-bottom: 30px;">
+                                <div class="current-avatar" style="width: 80px; height: 80px; background: linear-gradient(135deg, #2ecc71, #27ae60); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 32px;">IM</div>
+                                <button class="btn btn-outline">Change Avatar</button>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Full Name</label>
+                                <input type="text" value="Istaslama Meylana" class="form-input">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" value="istaslama@company.com" class="form-input">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Department</label>
+                                <select class="form-input">
+                                    <option>IT - Aplikasi & System</option>
+                                    <option>IT - Infrastructure</option>
+                                    <option>HRD</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Position</label>
+                                <input type="text" value="System Analyst" class="form-input">
+                            </div>
+                            
+                            <button class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </div>
+
+                    <!-- Notifications Section -->
+                    <div class="settings-section" id="notifications">
+                        <h2>Notification Preferences</h2>
+                        <div class="settings-form">
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <h4>Email Notifications</h4>
+                                    <p>Receive notifications via email</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <h4>Push Notifications</h4>
+                                    <p>Receive browser notifications</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <h4>Sound Alerts</h4>
+                                    <p>Play sound for new notifications</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" checked id="soundAlert">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>Select Notification Sound</label>
+                                <select id="soundSelect" class="form-input">
+                                    <option value="sounds/notification 1.wav">Alert 1</option>
+                                    <option value="sounds/notification 2.wav">Alert 2</option>
+                                    <option value="sounds/notification 3.wav">Alert 3</option>
+                                    <option value="sounds/notification 4.wav">Alert 4</option>
+                                    <option value="sounds/notification 5.wav">Alert 5</option>
+                                </select>
+                            </div>
+                            
+                            <button type="button" id="testSoundBtn" class="btn btn-outline">
+                                🔊 Test Sound
+                            </button>
+
+                            <div class="form-group">
+                                <label>Notification Volume</label>
+                                <input type="range" min="0" max="100" value="80" class="volume-range" style="width: 100%;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Appearance Section -->
+                    <div class="settings-section" id="appearance">
+                        <h2>Appearance</h2>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label>Theme</label>
+                                <div class="theme-options" style="display: flex; gap: 10px;">
+                                    <div class="theme-option active" data-theme="light" style="padding: 10px 20px; border: 1px solid #ddd; border-radius: 5px; cursor: pointer;">
+                                        <span>☀️ Light</span>
+                                    </div>
+                                    <div class="theme-option" data-theme="dark" style="padding: 10px 20px; border: 1px solid #ddd; border-radius: 5px; cursor: pointer;">
+                                        <span>🌙 Dark</span>
+                                    </div>
+                                    <div class="theme-option" data-theme="system" style="padding: 10px 20px; border: 1px solid #ddd; border-radius: 5px; cursor: pointer;">
+                                        <span>💻 System</span>
+                                    </div>
+                                </div>
+                            </div>
+                    
+
+                    <!-- Security Section -->
+                    <div class="settings-section" id="security">
+                        <h2>Security Settings</h2>
+                        <div class="settings-form">
+                            <div class="form-group">
+                                <label>Current Password</label>
+                                <input type="password" class="form-input">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>New Password</label>
+                                <input type="password" class="form-input">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Confirm Password</label>
+                                <input type="password" class="form-input">
+                            </div>
+                            
+                            <div class="toggle-item">
+                                <div class="toggle-info">
+                                    <h4>Two-Factor Authentication</h4>
+                                    <p>Add extra security to your account</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            
+                            <button class="btn btn-primary">Update Password</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notifications Panel -->
+            <div class="notifications-panel" id="notificationsPanel">
+                <!-- ... -->
+            </div>
+        </main>
+    </div>
+
+    <audio id="notificationSound" src="/sounds/notification 1.wav" preload="auto"></audio>
+    <script src="js/main.js"></script>
+    <script src="js/settings.js"></script>
+</body>
+</html>
