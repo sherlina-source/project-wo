@@ -75,6 +75,7 @@
                               <input type="date" id="filterDate">
                             </label>
                           </div>
+                         
                         <div class="notification-wrapper" id="notificationIcon">
                             <span class="notification-icon">🔔</span>
                             <span class="notification-badge" id="notifCount">3</span>
@@ -156,20 +157,22 @@
                         <h3>Recent Work Orders</h3>
                         <a href="work-orders.html" class="view-all" style="color: hsl(144, 50%, 52%); text-decoration: none;">View All →</a>
                     </div>
+                            
                     <div class="activities-table">
                         <table class="wo-table">
                             <thead>
                                 <tr>
-                                    <th>WO ID</th>
-                                    <th>Job Name</th>
-                                    <th>Department</th>
-                                    <th>Priority</th>
+                                    <th>ID WO</th>
+                                    <th> Job name</th>                                                   
+                                    <th>Department</th>                                                                     
+                                    <th>Requestor</th>
+                                    <th>Tanggal Request</th>                                 
+                                    <th>Priority</th>                            
                                     <th>Status</th>
-                                    <th>Created</th>
-                                </tr>
+                         </tr>
                             </thead>
                             <tbody id="woTableBody"></tbody>
-                            <tbody id="recentWOList">
+                            
                                 <!-- Dynamic content from JS -->
                             </tbody>
                         </table>
@@ -190,9 +193,8 @@
         </main>
     </div>
 
-    <audio id="notificationSound" src="/sounds/notification 1.wav" preload="auto"></audio>
+    <audio id="notificationSound" src="sounds/notification1.wav" preload="auto"></audio>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/dashboard.js"></script>
+    <script src="./js/dashboard.js"></script>
 </body>
 </html>

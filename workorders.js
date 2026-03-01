@@ -426,4 +426,3 @@ function markAsComplete() {
 
 // Export function untuk digunakan di file lain
 window.loadWorkOrderDetail = loadWorkOrderDetail;
-

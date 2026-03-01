@@ -1,155 +1,68 @@
-// API Data
-const apiResponse = {
-    status: "success",
-    message: "Get Data Work Order Successfuly",
-    data: [
-        {
-            id: 34,
-            id_wo: "WO-DP005-241021-000007",
-            years: "2024",
-            date_request: "2024-10-21 12:56:08",
-            id_dept: "DP011",
-            departemen: "IT",
-            id_sub_dept: "DS059",
-            sub_departemen: "Aplikasi & System",
-            id_karyawan: "02-0422-066",
-            name_request: "Istaslama Meylana Sukma",
-            id_dept_request: "DP005",
-            departemen_request: "INPARK REVENUE",
-            id_sub_dept_request: "DS068",
-            sub_departemen_request: "Inpark Revenue Operational",
-            job_image: "https://servicewo.salokapark.app/storage/work_order_master/",
-            job_name: "Pemasangan ssd",
-            job_description: "Pemasangan ssd",
-            work_location: "Pesisir-Office Lama-Ruang IT",
-            asset: "trial",
-            description_of_image: null,
-            description_of_work_order: null,
-            description_of_pic_id: null,
-            description_of_pic_name: null,
-            work_started: null,
-            work_completed: null,
-            priority: 1,
-            priority_others: "",
-            track_status: 2,
-            status: 1,
-            expied: null,
-            created_at: "2024-10-21 12:56:08",
-            updated_at: "2024-10-22 14:13:29"
-        },
-        // Data tambahan untuk demo
-        {
-            id: 35,
-            id_wo: "WO-DP005-241021-000008",
-            years: "2024",
-            date_request: "2024-10-22 09:30:00",
-            id_dept: "DP012",
-            departemen: "HRD",
-            id_sub_dept: "DS060",
-            sub_departemen: "Recruitment",
-            id_karyawan: "02-0422-067",
-            name_request: "Budi Santoso",
-            id_dept_request: "DP005",
-            departemen_request: "INPARK REVENUE",
-            id_sub_dept_request: "DS068",
-            sub_departemen_request: "Inpark Revenue Operational",
-            job_image: "https://servicewo.salokapark.app/storage/work_order_master/",
-            job_name: "Instalasi Software HR",
-            job_description: "Instalasi software HRIS",
-            work_location: "Gedung A - Lantai 3",
-            asset: "Server HR",
-            description_of_image: null,
-            description_of_work_order: null,
-            description_of_pic_id: "PIC001",
-            description_of_pic_name: "Ahmad Rizal",
-            work_started: "2024-10-22 10:00:00",
-            work_completed: null,
-            priority: 2,
-            priority_others: "",
-            track_status: 3,
-            status: 2,
-            expied: null,
-            created_at: "2024-10-22 09:30:00",
-            updated_at: "2024-10-22 10:00:00"
-        }
-    ]
-};
+// ===============================
+// 🌍 CONFIG API
+// ===============================
+const API_BASE_URL = "https://stagingservicewo.salokapark.app/api/get_wo_request";
+const DEPT_ID = "DP011";
 
-// State Management
+// ===============================
+// 📦 STATE GLOBAL
+// ===============================
 const state = {
-    workOrders: apiResponse.data,
-    soundEnabled: true,
-    volume: 80,
-    notifications: [
-        {
-            id: 1,
-            title: "Work Order Baru",
-            message: "Pemasangan SSD - Priority High",
-            time: "2 menit yang lalu",
-            read: false,
-            icon: "📋",
-            type: "new"
-        },
-        {
-            id: 2,
-            title: "Status Diperbarui",
-            message: "WO-DP005-241021-000007 - In Progress",
-            time: "15 menit yang lalu",
-            read: false,
-            icon: "🔄",
-            type: "update"
-        },
-        {
-            id: 3,
-            title: "Deadline Mendekat",
-            message: "WO akan jatuh tempo dalam 2 jam",
-            time: "1 jam yang lalu",
-            read: false,
-            icon: "⏰",
-            type: "deadline"
+    workOrders: [],
+    notifications: [],
+    lastWOCount: 0,
+    currentPage: window.location.pathname.split("/").pop() || "index.html"
+};
+
+// ===============================
+// 📡 FETCH WORK ORDER FROM API
+// ===============================
+async function fetchWorkOrdersFromAPI(date = null) {
+    try {
+        let url = `${API_BASE_URL}?id_dept=${DEPT_ID}`;
+
+        if (date) {
+            url += `&date_request=${date}`;
         }
-    ],
-    currentPage: window.location.pathname.split('/').pop() || 'index.html'
-};
 
-// DOM Elements
-const elements = {
-    userAvatar: document.getElementById('userAvatar'),
-    userName: document.getElementById('userName'),
-    userRole: document.getElementById('userRole'),
-    notifCount: document.getElementById('notifCount'),
-    sidebarNotif: document.getElementById('sidebarNotif'),
-    notificationsPanel: document.getElementById('notificationsPanel'),
-    notificationIcon: document.getElementById('notificationIcon'),
-    notificationsList: document.getElementById('notificationsList'),
-    markAllRead: document.getElementById('markAllRead'),
-    soundToggle: document.getElementById('soundToggle'),
-    volumeSlider: document.getElementById('volumeSlider'),
-    notificationSound: document.getElementById('notificationSound'),
-    currentDate: document.getElementById('currentDate'),
-    searchInput: document.getElementById('searchInput')
-};
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Gagal mengambil API");
 
-// Initialize Application
-document.addEventListener('DOMContentLoaded', function() {
-    initApp();
+        const result = await response.json();
+        return result.status === "success" ? result.data : [];
+    } catch (error) {
+        console.error("Fetch API Error:", error);
+        return [];
+    }
+}
+
+// ===============================
+// 🚀 INIT APP
+// ===============================
+document.addEventListener("DOMContentLoaded", async function () {
+    await initApp();
     loadPageContent();
 });
 
-function initApp() {
+async function initApp() {
+
+    const today = new Date().toISOString().split("T")[0];
+
+    const data = await fetchWorkOrdersFromAPI(today);
+
+    state.workOrders = data;
+    state.lastWOCount = data.length;
+
     updateUserInfo();
+    generateNotificationsFromWO(data);
     updateNotifications();
     updateDate();
     setupEventListeners();
     highlightActiveMenu();
-    
-    // Update date every minute
-    setInterval(updateDate, 60000);
-    
-    // Simulate random notifications every 30 seconds
-    setInterval(addRandomNotification, 30000);
-}
 
+    // Cek WO baru tiap 30 detik
+    setInterval(checkNewWorkOrders, 30000);
+}
 function updateUserInfo() {
     if (elements.userName && apiResponse.data.length > 0) {
         const user = apiResponse.data[0];
@@ -160,121 +73,144 @@ function updateUserInfo() {
     }
 }
 
-function updateDate() {
-    if (elements.currentDate) {
-        const now = new Date();
-        const options = { 
-            weekday: 'short', 
-            year: 'numeric', 
-            month: 'short', 
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        };
-        elements.currentDate.textContent = now.toLocaleDateString('id-ID', options);
-    }
-}
+// ===============================
+// 🔄 CEK WORK ORDER BARU
+// ===============================
+async function checkNewWorkOrders() {
 
-function updateNotifications() {
-    if (!elements.notifCount || !elements.sidebarNotif) return;
-    
-    const unreadCount = state.notifications.filter(n => !n.read).length;
-    elements.notifCount.textContent = unreadCount;
-    elements.sidebarNotif.textContent = unreadCount;
-    
-    if (elements.notificationsList) {
-        elements.notificationsList.innerHTML = state.notifications.map(notif => `
-            <div class="notif-item ${!notif.read ? 'unread' : ''}" onclick="markNotificationRead(${notif.id})">
-                <div class="notif-icon">${notif.icon}</div>
-                <div class="notif-content">
-                    <div class="notif-title">${notif.title}</div>
-                    <div class="notif-message">${notif.message}</div>
-                    <div class="notif-time">${notif.time}</div>
-                </div>
-            </div>
-        `).join('');
-    }
-}
+    const today = new Date().toISOString().split("T")[0];
 
-window.markNotificationRead = function(id) {
-    state.notifications = state.notifications.map(n => 
-        n.id === id ? { ...n, read: true } : n
-    );
-    updateNotifications();
-};
+    const newData = await fetchWorkOrdersFromAPI(today);
 
-function addRandomNotification() {
-    const notifications = [
-        {
-            title: "Update Status",
-            message: "Pekerjaan sedang dalam proses",
-            icon: "🔄",
-            type: "update"
-        },
-        {
-            title: "Komentar Baru",
-            message: "PIC menambahkan catatan",
-            icon: "💬",
-            type: "comment"
-        },
-        {
-            title: "Reminder",
-            message: "Deadline dalam 2 jam",
-            icon: "⏰",
-            type: "deadline"
-        },
-        {
-            title: "Work Order Selesai",
-            message: "Pekerjaan telah completed",
-            icon: "✅",
-            type: "completed"
-        }
-    ];
-    
-    const random = notifications[Math.floor(Math.random() * notifications.length)];
-    
-    const newNotif = {
-        id: Date.now(),
-        title: random.title,
-        message: random.message,
-        time: "Baru saja",
-        read: false,
-        icon: random.icon,
-        type: random.type
-    };
-    
-    state.notifications.unshift(newNotif);
-    if (state.notifications.length > 10) {
-        state.notifications.pop();
-    }
-    
-    updateNotifications();
-    
-    // Play sound if enabled
-    if (state.soundEnabled) {
+    if (newData.length > state.lastWOCount) {
+
+        const newWO = newData[0];
+
+        state.notifications.unshift({
+            id: Date.now(),
+            title: "Work Order Baru",
+            message: `${newWO.id_wo} - ${newWO.job_name}`,
+            time: "Baru saja",
+            read: false,
+            icon: "📋"
+        });
+
         playNotificationSound();
+        animateNotificationBell();
     }
-    
 
-    // Animate bell
-    animateNotificationBell();
+    state.lastWOCount = newData.length;
+    state.workOrders = newData;
+
+    updateNotifications();
 }
 
+// ===============================
+// 🔔 GENERATE NOTIFICATION AWAL
+// ===============================
+function generateNotificationsFromWO(workOrders) {
+
+    state.notifications = workOrders.map(wo => ({
+        id: wo.id,
+        title: "Work Order",
+        message: `${wo.id_wo} - ${wo.job_name}`,
+        time: formatDate(wo.created_at),
+        read: false,
+        icon: "📋"
+    }));
+}
+
+// ===============================
+// 🔊 PLAY SOUND
+// ===============================
 function playNotificationSound() {
-    if (elements.notificationSound && state.soundEnabled) {
-        elements.notificationSound.volume = state.volume / 100;
-        elements.notificationSound.currentTime = 0;
-        elements.notificationSound.play().catch(e => console.log('Audio error:', e));
-    }
+    const audio = document.getElementById("notificationSound");
+    if (!audio) return;
+
+    audio.currentTime = 0;
+    audio.play().catch(err => console.log("Audio blocked:", err));
 }
 
+// ===============================
+// 🔔 ANIMASI ICON LONCENG
+// ===============================
 function animateNotificationBell() {
-    if (elements.notificationIcon) {
-        elements.notificationIcon.style.transform = 'scale(1.2)';
-        setTimeout(() => {
-            elements.notificationIcon.style.transform = 'scale(1)';
-        }, 200);
-    }
+    const bell = document.getElementById("notificationBell");
+    if (!bell) return;
+
+    bell.classList.add("shake");
+
+    setTimeout(() => {
+        bell.classList.remove("shake");
+    }, 1000);
+}
+
+// ===============================
+// 📋 UPDATE NOTIFICATION UI
+// ===============================
+function updateNotifications() {
+
+    const container = document.getElementById("notificationList");
+    const badge = document.getElementById("notificationBadge");
+
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    const unreadCount = state.notifications.filter(n => !n.read).length;
+
+    badge.textContent = unreadCount;
+    badge.style.display = unreadCount > 0 ? "inline-block" : "none";
+
+    state.notifications.forEach(notification => {
+
+        const item = document.createElement("div");
+        item.className = "notification-item";
+
+        item.innerHTML = `
+            <div class="notif-icon">${notification.icon}</div>
+            <div class="notif-content">
+                <strong>${notification.title}</strong>
+                <p>${notification.message}</p>
+                <small>${notification.time}</small>
+            </div>
+        `;
+
+        container.appendChild(item);
+    });
+}
+
+// ===============================
+// 📅 FORMAT TANGGAL
+// ===============================
+function formatDate(dateString) {
+    if (!dateString) return "-";
+
+    const date = new Date(dateString);
+
+    return date.toLocaleString("id-ID", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+    
+    });
+}
+
+// ===============================
+// 📆 UPDATE TANGGAL HEADER
+// ===============================
+function updateDate() {
+    const dateElement = document.getElementById("currentDate");
+    if (!dateElement) return;
+
+    const today = new Date();
+
+    dateElement.textContent = today.toLocaleDateString("id-ID", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+    });
 }
 
 function setupEventListeners() {
@@ -316,9 +252,8 @@ function setupEventListeners() {
     if (elements.searchInput) {
         elements.searchInput.addEventListener('input', debounce(handleSearch, 500));
     }
-    
-    // Close notifications when clicking outside
-    document.addEventListener('click', (e) => {
+     // Close notifications when clicking outside
+     document.addEventListener('click', (e) => {
         if (elements.notificationsPanel && 
             !elements.notificationsPanel.contains(e.target) && 
             !elements.notificationIcon?.contains(e.target)) {
@@ -350,21 +285,18 @@ function handleSearch(e) {
     // Implement search functionality based on current page
 }
 
+// ===============================
+// 🎨 MENU ACTIVE
+// ===============================
 function highlightActiveMenu() {
-    const currentPage = state.currentPage;
-    const navItems = document.querySelectorAll('.nav-item');
-    
-    navItems.forEach(item => {
-        const href = item.getAttribute('href');
-        if (href === currentPage || 
-            (currentPage === 'index.html' && href === '#')) {
-            item.classList.add('active');
-        } else {
-            item.classList.remove('active');
+    const links = document.querySelectorAll(".menu-link");
+
+    links.forEach(link => {
+        if (link.getAttribute("href") === state.currentPage) {
+            link.classList.add("active");
         }
     });
 }
-
 function loadPageContent() {
     const page = state.currentPage;
     
@@ -473,7 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  const dateInput = document.getElementById('dateInput');
+  
 const timeInput = document.getElementById('timeInput');
 
 // Set default hari ini
@@ -489,22 +421,4 @@ function updateDateTime() {
   const date = dateInput.value;
   const time = timeInput.value;
   console.log("Tanggal:", date, "Waktu:", time);
-}
-
-// ===============// PLAY NOTIFICATION SOUND // ===============
-function playNotificationSound() {
-
-    const enabled = localStorage.getItem("wo_sound_enabled");
-    if (enabled !== "true") return;
-
-    const selectedSound =
-        localStorage.getItem("wo_selected_sound") ||
-        "sound/notification.mp3";
-
-    const volume =
-        localStorage.getItem("wo_volume") || 80;
-
-    const audio = new Audio(selectedSound);
-    audio.volume = volume / 100;
-    audio.play();
 }
