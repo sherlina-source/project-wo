@@ -369,49 +369,7 @@
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <span class="logo-icon">📋</span>
-                    <h2>WO<span>System</span></h2>
-                </div>
-        </div>
-        
-            <nav class="sidebar-nav">
-                <a href="index.html" class="nav-item">
-                    <span class="nav-icon">📊</span>
-                    <span class="nav-text">Dashboard</span>
-                </a>
-                <a href="work-orders.html" class="nav-item active">
-                    <span class="nav-icon">📋</span>
-                    <span class="nav-text">Work Orders</span>
-                    <span class="nav-badge">12</span>
-                </a>
-                <a href="in-progress.html" class="nav-item">
-                    <span class="nav-icon">⏳</span>
-                    <span class="nav-text">In Progress</span>
-                    <span class="nav-badge">5</span>
-                </a>
-                <a href="completed.html" class="nav-item">
-                    <span class="nav-icon">✅</span>
-                    <span class="nav-text">Completed</span>
-                    <span class="nav-badge">23</span>
-                </a>
-                <div class="nav-divider"></div>
-                <a href="notifications.html" class="nav-item">
-                    <span class="nav-icon">🔔</span>
-                    <span class="nav-text">Notifications</span>
-                    <span class="nav-badge">3</span>
-                </a>
-                <a href="settings.html" class="nav-item">
-                    <span class="nav-icon">⚙️</span>
-                    <span class="nav-text">Settings</span>
-                </a>
-            </nav>
-        </aside>
-
+    
         <!-- Main Content -->
         <main class="main-content">
             <!-- Top Navigation -->
@@ -432,26 +390,74 @@
                     <div class="action-group">
                         <div class="notification-wrapper">
                             <span class="notification-icon">🔔</span>
-                            <span class="notification-badge">3</span>
+                            <span class="notification-badge">0</span>
                         </div>
                     </div>
                 </div>
             </header>
+        <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">📋</span>
+                <h2>WO<span>System</span></h2>
+            </div>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+
+            <a href="work-orders.html" class="nav-item active">
+                <span class="nav-icon">📋</span>
+                <span class="nav-text">Work Orders</span>
+                <span class="nav-badge" id="woBadge"></span>
+            </a>
+
+            <a href="in-progress.html" class="nav-item">
+                <span class="nav-icon">⏳</span>
+                <span class="nav-text">In Progress</span>
+                <span class="nav-badge" id="progressBadge"></span>
+            </a>
+
+            <a href="completed.html" class="nav-item">
+                <span class="nav-icon">✅</span>
+                <span class="nav-text">Completed</span>
+                <span class="nav-badge" id="completedBadge"></span>
+            </a>
+
+            <div class="nav-divider"></div>
+
+            <a href="notifications.html" class="nav-item">
+                <span class="nav-icon">🔔</span>
+                <span class="nav-text">Notifications</span>
+                <span class="nav-badge" id="notifBadge"></span>
+            </a>
+
+            <a href="settings.html" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+    </aside>
 
             <!-- Detail Content -->
             <div class="detail-container">
                 <!-- Header dengan ID WO -->
                 <div class="detail-header">
                     <div class="wo-title">ID WORK ORDER</div>
-                    <div class="wo-id" id="woId">WO-DP005-241021-000007</div>
+                    <div class="wo-id" id="woId">-</div>
                     <div class="wo-meta">
                         <div class="meta-item">
                             <span class="meta-label">Created at</span>
-                            <span class="meta-value" id="createdAt">21/10/2024 12:56</span>
+                            <span class="meta-value" id="createdAt">-</span>
                         </div>
                         <div class="meta-item">
                             <span class="meta-label">Updated at</span>
-                            <span class="meta-value" id="updatedAt">22/10/2024 14:13</span>
+                            <span class="meta-value" id="updatedAt">-</span>
                         </div>
                     </div>
                 </div>
@@ -467,24 +473,24 @@
                         <table class="info-table">
                             <tr>
                                 <td>JOB_NAME</td>
-                                <td><strong id="jobName">Pemasangan ssd</strong></td>
+                                <td><strong id="jobName">-</strong></td>
                             </tr>
                             <tr>
                                 <td>WORK_LOCATION</td>
-                                <td><strong id="workLocation">Pesisir-Office Lama-Ruang IT</strong></td>
+                                <td><strong id="workLocation">-</strong></td>
                             </tr>
                             <tr>
                                 <td>ASSET</td>
-                                <td><strong id="asset">trial</strong></td>
+                                <td><strong id="asset">-</strong></td>
                             </tr>
                             <tr>
                                 <td>YEARS</td>
-                                <td><strong id="years">2024</strong></td>
+                                <td><strong id="years">-</strong></td>
                             </tr>
                             <tr>
                                 <td>PRIORITY</td>
                                 <td>
-                                    <strong id="priority">1 (High Priority)</strong>
+                                    <strong id="priority">-</strong>
                                 </td>
                             </tr>
                         </table>
@@ -503,19 +509,19 @@
                             <table class="info-table">
                                 <tr>
                                     <td>id_dept</td>
-                                    <td><strong id="idDept">DP011</strong></td>
+                                    <td><strong id="idDept">-</strong></td>
                                 </tr>
                                 <tr>
                                     <td>department</td>
-                                    <td><strong id="department">IT</strong></td>
+                                    <td><strong id="department">-</strong></td>
                                 </tr>
                                 <tr>
                                     <td>id_sub_dept</td>
-                                    <td><strong id="idSubDept">DS059</strong></td>
+                                    <td><strong id="idSubDept">-</strong></td>
                                 </tr>
                                 <tr>
                                     <td>sub_department</td>
-                                    <td><strong id="subDepartment">Aplikasi & System</strong></td>
+                                    <td><strong id="subDepartment">-</strong></td>
                                 </tr>
                             </table>
                         </div>
@@ -526,19 +532,19 @@
                             <table class="info-table">
                                 <tr>
                                     <td>id_dept_request</td>
-                                    <td><strong id="idDeptRequest">DP005</strong></td>
+                                    <td><strong id="idDeptRequest">-</strong></td>
                                 </tr>
                                 <tr>
                                     <td>departemen_request</td>
-                                    <td><strong id="deptRequest">INPARK REVENUE</strong></td>
+                                    <td><strong id="deptRequest">-</strong></td>
                                 </tr>
                                 <tr>
                                     <td>id_sub_dept_request</td>
-                                    <td><strong id="idSubDeptRequest">DS068</strong></td>
+                                    <td><strong id="idSubDeptRequest">-</strong></td>
                                 </tr>
                                 <tr>
                                     <td>Sub_Department</td>
-                                    <td><strong id="subDeptRequest">Inpark Revenue Operational</strong></td>
+                                    <td><strong id="subDeptRequest">-</strong></td>
                                 </tr>
                             </table>
                         </div>
@@ -559,8 +565,8 @@
                                 <div class="timeline-item">
                                     <div class="timeline-icon">📅</div>
                                     <div class="timeline-content">
-                                        <div class="timeline-label">date_request</div>
-                                        <div class="timeline-value" id="dateRequest">2024-10-21 12:56:08</div>
+                                        <div class="timeline-label">Tanggal Request</div>
+                                        <div class="timeline-value" id="dateRequest">-</div>
                                     </div>
                                 </div>
                                 <div class="timeline-item">
@@ -594,12 +600,12 @@
                                 Informasi Requestor
                             </h3>
                             <div class="requestor-info">
-                                <div class="requestor-avatar" id="requestorAvatar">IM</div>
+                                <div class="requestor-avatar" id="requestorAvatar">-</div>
                                 <div class="requestor-details">
-                                    <div class="requestor-name" id="requestorName">Istaslama Meylana Sukma</div>
+                                    <div class="requestor-name" id="requestorName">-</div>
                                     <div class="requestor-id">
-                                        <span id="requestorId">02-0422-066</span>
-                                        <span class="badge">Karyawan</span>
+                                        <span id="requestorId">-</span>
+                                        <span class="badge">-</span>
                                     </div>
                                 </div>
                             </div>
@@ -635,7 +641,7 @@
                             <div class="image-info">
                                 <div>
                                     <div class="description-label">Job Image</div>
-                                    <div class="image-path" id="jobImage">https://servicewo.salokapark.app/storage/work_order_master/</div>
+                                    <div class="image-path" id="jobImage">-</div>
                                 </div>
                                 
                                 <div>
@@ -670,141 +676,8 @@
             </div>
         </main>
     </div>
-
-    <audio id="notificationSound" src="sound/notification.mp3" preload="auto"></audio>
-    <script>
-        // Data dari API
-        const workOrderData = {
-            id: 34,
-            id_wo: "WO-DP005-241021-000007",
-            years: "2024",
-            date_request: "2024-10-21 12:56:08",
-            id_dept: "DP011",
-            departemen: "IT",
-            id_sub_dept: "DS059",
-            sub_departemen: "Aplikasi & System",
-            id_karyawan: "02-0422-066",
-            name_request: "Istaslama Meylana Sukma",
-            id_dept_request: "DP005",
-            departemen_request: "INPARK REVENUE",
-            id_sub_dept_request: "DS068",
-            sub_departemen_request: "Inpark Revenue Operational",
-            job_image: "https://servicewo.salokapark.app/storage/work_order_master/",
-            job_name: "Pemasangan ssd",
-            job_description: "Pemasangan ssd",
-            work_location: "Pesisir-Office Lama-Ruang IT",
-            asset: "trial",
-            description_of_image: null,
-            description_of_work_order: null,
-            description_of_pic_id: null,
-            description_of_pic_name: null,
-            work_started: null,
-            work_completed: null,
-            priority: 1,
-            priority_others: "",
-            track_status: 2,
-            status: 1,
-            expied: null,
-            created_at: "2024-10-21 12:56:08",
-            updated_at: "2024-10-22 14:13:29"
-        };
-
-        // Format tanggal
-        function formatDate(dateString) {
-            if (!dateString) return '-';
-            const date = new Date(dateString);
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear();
-            const hours = date.getHours().toString().padStart(2, '0');
-            const minutes = date.getMinutes().toString().padStart(2, '0');
-            return `${day}/${month}/${year} ${hours}:${minutes}`;
-        }
-
-        // Format datetime untuk timeline
-        function formatDateTime(dateString) {
-            if (!dateString) return '-';
-            const date = new Date(dateString);
-            const year = date.getFullYear();
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const day = date.getDate().toString().padStart(2, '0');
-            const hours = date.getHours().toString().padStart(2, '0');
-            const minutes = date.getMinutes().toString().padStart(2, '0');
-            const seconds = date.getSeconds().toString().padStart(2, '0');
-            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-        }
-
-        // Tampilkan data
-        document.addEventListener('DOMContentLoaded', function() {
-            // Header
-            document.getElementById('woId').textContent = workOrderData.id_wo;
-            document.getElementById('createdAt').textContent = formatDate(workOrderData.created_at);
-            document.getElementById('updatedAt').textContent = formatDate(workOrderData.updated_at);
-            
-            // Informasi Pekerjaan
-            document.getElementById('jobName').textContent = workOrderData.job_name;
-            document.getElementById('workLocation').textContent = workOrderData.work_location;
-            document.getElementById('asset').textContent = workOrderData.asset;
-            document.getElementById('years').textContent = workOrderData.years;
-            
-            // Priority
-            const priorityText = workOrderData.priority === 1 ? '1 (High Priority)' : 
-                                workOrderData.priority === 2 ? '2 (Medium Priority)' : 
-                                workOrderData.priority === 3 ? '3 (Low Priority)' : 
-                                `${workOrderData.priority} (Unknown)`;
-            document.getElementById('priority').textContent = priorityText;
-            
-            // Department Asal
-            document.getElementById('idDept').textContent = workOrderData.id_dept;
-            document.getElementById('department').textContent = workOrderData.departemen;
-            document.getElementById('idSubDept').textContent = workOrderData.id_sub_dept;
-            document.getElementById('subDepartment').textContent = workOrderData.sub_departemen;
-            
-            // Department Tujuan
-            document.getElementById('idDeptRequest').textContent = workOrderData.id_dept_request;
-            document.getElementById('deptRequest').textContent = workOrderData.departemen_request;
-            document.getElementById('idSubDeptRequest').textContent = workOrderData.id_sub_dept_request;
-            document.getElementById('subDeptRequest').textContent = workOrderData.sub_departemen_request;
-            
-            // Timeline
-            document.getElementById('dateRequest').textContent = formatDateTime(workOrderData.date_request);
-            document.getElementById('workStarted').textContent = workOrderData.work_started ? formatDateTime(workOrderData.work_started) : '-';
-            document.getElementById('workCompleted').textContent = workOrderData.work_completed ? formatDateTime(workOrderData.work_completed) : '-';
-            document.getElementById('expired').textContent = workOrderData.expied ? formatDateTime(workOrderData.expied) : '-';
-            
-            // Informasi Requestor
-            const nameParts = workOrderData.name_request.split(' ');
-            const initials = nameParts.map(n => n[0]).join('').substring(0, 2).toUpperCase();
-            document.getElementById('requestorAvatar').textContent = initials;
-            document.getElementById('requestorName').textContent = workOrderData.name_request;
-            document.getElementById('requestorId').textContent = workOrderData.id_karyawan;
-            
-            // Informasi PIC
-            document.getElementById('picId').textContent = workOrderData.description_of_pic_id || '-';
-            document.getElementById('picName').textContent = workOrderData.description_of_pic_name || '-';
-            
-            // Gambar & Deskripsi
-            document.getElementById('jobImage').textContent = workOrderData.job_image || '-';
-            document.getElementById('descImage').textContent = workOrderData.description_of_image || '-';
-            document.getElementById('descWO').textContent = workOrderData.description_of_work_order || '-';
-            
-            // Update date display
-            const dateDisplay = document.getElementById('currentDate');
-            if (dateDisplay) {
-                const now = new Date();
-                const options = { 
-                    weekday: 'short', 
-                    year: 'numeric', 
-                    month: 'short', 
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                };
-                dateDisplay.textContent = now.toLocaleDateString('id-ID', options);
-            }
-        });
-    </script>
-    <audio id="notificationSound" src="sound/notification.mp3" preload="auto"></audio>
+  
+    <audio id="notificationSound" src="/sounds/notification4.wav" preload="auto"></audio>
     <script src="js/main.js"></script>
     <script src="js/workorders.js"></script>
 </body>

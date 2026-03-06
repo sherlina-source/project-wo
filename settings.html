@@ -8,48 +8,54 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <span class="logo-icon">📋</span>
-                    <h2>WO<span>System</span></h2>
-                </div> 
+         <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">📋</span>
+                <h2>WO<span>System</span></h2>
+            </div>
         </div>
+        
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
 
-            <nav class="sidebar-nav">
-                <a href="index.html" class="nav-item">
-                    <span class="nav-icon">📊</span>
-                    <span class="nav-text">Dashboard</span>
-                </a>
-                <a href="work-orders.html" class="nav-item active">
-                    <span class="nav-icon">📋</span>
-                    <span class="nav-text">Work Orders</span>
-                    <span class="nav-badge">12</span>
-                </a>
-                <a href="in-progress.html" class="nav-item">
-                    <span class="nav-icon">⏳</span>
-                    <span class="nav-text">In Progress</span>
-                    <span class="nav-badge">5</span>
-                </a>
-                <a href="completed.html" class="nav-item">
-                    <span class="nav-icon">✅</span>
-                    <span class="nav-text">Completed</span>
-                    <span class="nav-badge">23</span>
-                </a>
-                <div class="nav-divider"></div>
-                <a href="notifications.html" class="nav-item">
-                    <span class="nav-icon">🔔</span>
-                    <span class="nav-text">Notifications</span>
-                    <span class="nav-badge">3</span>
-                </a>
-                <a href="settings.html" class="nav-item">
-                    <span class="nav-icon">⚙️</span>
-                    <span class="nav-text">Settings</span>
-                </a>
-            </nav>
-        </aside>
+            <a href="work-orders.html" class="nav-item active">
+                <span class="nav-icon">📋</span>
+                <span class="nav-text">Work Orders</span>
+                <span class="nav-badge" id="woBadge"></span>
+            </a>
 
+            <a href="in-progress.html" class="nav-item">
+                <span class="nav-icon">⏳</span>
+                <span class="nav-text">In Progress</span>
+                <span class="nav-badge" id="progressBadge"></span>
+            </a>
+
+            <a href="completed.html" class="nav-item">
+                <span class="nav-icon">✅</span>
+                <span class="nav-text">Completed</span>
+                <span class="nav-badge" id="completedBadge"></span>
+            </a>
+
+            <div class="nav-divider"></div>
+
+            <a href="notifications.html" class="nav-item">
+                <span class="nav-icon">🔔</span>
+                <span class="nav-text">Notifications</span>
+                <span class="nav-badge" id="notifBadge"></span>
+            </a>
+
+            <a href="settings.html" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+    </aside>
+    
         <!-- Main Content -->
         <main class="main-content">
             <header class="top-bar">
@@ -70,59 +76,16 @@
             <div class="settings-container">
                 <div class="settings-sidebar">
                     <div class="settings-nav">
-                        <a href="#" class="settings-nav-item active" data-section="profile">
-                            <span>👤</span> Profile
-                        </a>
                         <a href="#" class="settings-nav-item" data-section="notifications">
                             <span>🔔</span> Notifications
                         </a>
                         <a href="#" class="settings-nav-item" data-section="appearance">
                             <span>🎨</span> Appearance
                         </a>
-                        <a href="#" class="settings-nav-item" data-section="security">
-                            <span>🔒</span> Security
-                        </a>
                     </div>
                 </div>
 
                 <div class="settings-content">
-                    <!-- Profile Section -->
-                    <div class="settings-section active" id="profile">
-                        <h2>Profile Settings</h2>
-                        <div class="settings-form">
-                            <div class="avatar-upload" style="display: flex; align-items: center; gap: 20px; margin-bottom: 30px;">
-                                <div class="current-avatar" style="width: 80px; height: 80px; background: linear-gradient(135deg, #2ecc71, #27ae60); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 32px;">IM</div>
-                                <button class="btn btn-outline">Change Avatar</button>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Full Name</label>
-                                <input type="text" value="Istaslama Meylana" class="form-input">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Email</label>
-                                <input type="email" value="istaslama@company.com" class="form-input">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Department</label>
-                                <select class="form-input">
-                                    <option>IT - Aplikasi & System</option>
-                                    <option>IT - Infrastructure</option>
-                                    <option>HRD</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Position</label>
-                                <input type="text" value="System Analyst" class="form-input">
-                            </div>
-                            
-                            <button class="btn btn-primary">Save Changes</button>
-                        </div>
-                    </div>
-
                     <!-- Notifications Section -->
                     <div class="settings-section" id="notifications">
                         <h2>Notification Preferences</h2>
@@ -201,42 +164,6 @@
                             </div>
                     
 
-                    <!-- Security Section -->
-                    <div class="settings-section" id="security">
-                        <h2>Security Settings</h2>
-                        <div class="settings-form">
-                            <div class="form-group">
-                                <label>Current Password</label>
-                                <input type="password" class="form-input">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>New Password</label>
-                                <input type="password" class="form-input">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Confirm Password</label>
-                                <input type="password" class="form-input">
-                            </div>
-                            
-                            <div class="toggle-item">
-                                <div class="toggle-info">
-                                    <h4>Two-Factor Authentication</h4>
-                                    <p>Add extra security to your account</p>
-                                </div>
-                                <label class="switch">
-                                    <input type="checkbox">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            
-                            <button class="btn btn-primary">Update Password</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Notifications Panel -->
             <div class="notifications-panel" id="notificationsPanel">
                 <!-- ... -->
@@ -244,7 +171,7 @@
         </main>
     </div>
 
-    <audio id="notificationSound" src="/sounds/notification1.wav" preload="auto"></audio>
+    <audio id="notificationSound" src="/sounds/notification4.wav" preload="auto"></audio>
     <script src="js/main.js"></script>
     <script src="js/settings.js"></script>
 </body>

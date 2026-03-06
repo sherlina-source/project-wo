@@ -9,49 +9,53 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <span class="logo-icon">📋</span>
-                    <h2>WO<span>System</span></h2>
-                </div>
-                
+         <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <span class="logo-icon">📋</span>
+                <h2>WO<span>System</span></h2>
             </div>
-             
-            <nav class="sidebar-nav">
-                <a href="index.html" class="nav-item active">
-                    <span class="nav-icon">📊</span>
-                    <span class="nav-text">Dashboard</span>
-                </a>
-                <a href="work-orders.html" class="nav-item">
-                    <span class="nav-icon">📋</span>
-                    <span class="nav-text">Work Orders</span>
-                    <span class="nav-badge" id="sidebarWO">12</span>
-                </a>
-                <a href="in-progress.html" class="nav-item">
-                    <span class="nav-icon">⏳</span>
-                    <span class="nav-text">In Progress</span>
-                    <span class="nav-badge" id="sidebarProgress">5</span>
-                </a>
-                <a href="completed.html" class="nav-item">
-                    <span class="nav-icon">✅</span>
-                    <span class="nav-text">Completed</span>
-                    <span class="nav-badge" id="sidebarCompleted">23</span>
-                </a>
-                <div class="nav-divider"></div>
-                <a href="notifications.html" class="nav-item">
-                    <span class="nav-icon">🔔</span>
-                    <span class="nav-text">Notifications</span>
-                    <span class="nav-badge" id="sidebarNotif">3</span>
-                </a>
-                <a href="settings.html" class="nav-item">
-                    <span class="nav-icon">⚙️</span>
-                    <span class="nav-text">Settings</span>
-                </a>
-            </nav>
-        </aside>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="index.html" class="nav-item">
+                <span class="nav-icon">📊</span>
+                <span class="nav-text">Dashboard</span>
+            </a>
 
+            <a href="work-orders.html" class="nav-item active">
+                <span class="nav-icon">📋</span>
+                <span class="nav-text">Work Orders</span>
+                <span class="nav-badge" id="woBadge"></span>
+            </a>
+
+            <a href="in-progress.html" class="nav-item">
+                <span class="nav-icon">⏳</span>
+                <span class="nav-text">In Progress</span>
+                <span class="nav-badge" id="progressBadge"></span>
+            </a>
+
+            <a href="completed.html" class="nav-item">
+                <span class="nav-icon">✅</span>
+                <span class="nav-text">Completed</span>
+                <span class="nav-badge" id="completedBadge"></span>
+            </a>
+
+            <div class="nav-divider"></div>
+
+            <a href="notifications.html" class="nav-item">
+                <span class="nav-icon">🔔</span>
+                <span class="nav-text">Notifications</span>
+                <span class="nav-badge" id="notifBadge"></span>
+            </a>
+
+            <a href="settings.html" class="nav-item">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </a>
+        </nav>
+    </aside>
         <!-- Main Content -->
         <main class="main-content">
             <!-- Top Navigation -->
@@ -78,7 +82,7 @@
                          
                         <div class="notification-wrapper" id="notificationIcon">
                             <span class="notification-icon">🔔</span>
-                            <span class="notification-badge" id="notifCount">3</span>
+                            <span class="notification-badge" id="notifCount">-</span>
                         </div>
                         <div class="sound-control">
                             <button class="sound-btn" id="soundToggle">🔊</button>
@@ -193,7 +197,7 @@
         </main>
     </div>
 
-    <audio id="notificationSound" src="sounds/notification1.wav" preload="auto"></audio>
+    <audio id="notificationSound" src="sounds/notification4.wav" preload="auto"></audio>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="./js/dashboard.js"></script>
 </body>
