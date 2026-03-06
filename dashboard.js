@@ -219,7 +219,7 @@ function renderWorkOrders(data) {
   if (!data || data.length === 0) {
     tbody.innerHTML = `
       <tr>
-        <td colspan="5" style="text-align:center">
+        <td colspan="7" style="text-align:center">
           Tidak ada Work Order
         </td>
       </tr>`;
@@ -235,6 +235,11 @@ function renderWorkOrders(data) {
   <td>${formatDate(wo.date_request)}</td>
   <td>${getPriorityText(wo.priority)}</td>
   <td>${getStatusText(wo.status)}</td>
+  <td>
+  <a href="work-orders.html?id=${wo.id}">
+    Detail
+  </a>
+</td>
 </tr>
 `).join('');
 

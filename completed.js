@@ -1,4 +1,25 @@
-// Completed work orders functionality
+// ===============================
+// INIT COMPLETED PAGE
+// ===============================
+document.addEventListener("DOMContentLoaded", () => {
+
+    const waitData = setInterval(() => {
+
+        if (typeof state !== "undefined" && state.workOrders && state.workOrders.length > 0) {
+
+            clearInterval(waitData);
+            initCompleted();
+
+        }
+
+    }, 300);
+
+});
+
+
+// ===============================
+// COMPLETED WORK ORDERS
+// ===============================
 function initCompleted() {
     loadSummaryStats();
     loadCompletedList();
@@ -6,36 +27,55 @@ function initCompleted() {
 }
 
 function loadSummaryStats() {
-    const completed = state.workOrders.filter(wo => wo.status === 3);
+
+    if (!state.workOrders) return;
+
+    const completed = state.workOrders.filter(wo => Number(wo.status) === 3);
     
     // Completed this month
     const thisMonth = new Date().getMonth();
+
     const completedThisMonth = completed.filter(wo => {
+
         const completedDate = new Date(wo.work_completed || wo.updated_at);
         return completedDate.getMonth() === thisMonth;
+
     }).length;
     
-    document.getElementById('completedMonth').textContent = completedThisMonth;
+    const completedMonth = document.getElementById('completedMonth');
+    if (completedMonth) completedMonth.textContent = completedThisMonth;
     
     // Average completion time
     const completionTimes = completed.map(wo => {
+
         const start = new Date(wo.date_request);
         const end = new Date(wo.work_completed || wo.updated_at);
-        return (end - start) / (1000 * 60 * 60 * 24); // in days
+
+        return (end - start) / (1000 * 60 * 60 * 24);
+
     });
     
     const avgTime = completionTimes.length > 0 
         ? (completionTimes.reduce((a, b) => a + b, 0) / completionTimes.length).toFixed(1)
         : 0;
     
-    document.getElementById('avgTime').textContent = `${avgTime} days`;
+    const avgTimeEl = document.getElementById('avgTime');
+    if (avgTimeEl) avgTimeEl.textContent = `${avgTime} days`;
     
-    // Satisfaction rate (random for demo)
-    document.getElementById('satisfaction').textContent = '96%';
+    // Satisfaction rate (demo)
+    const satisfaction = document.getElementById('satisfaction');
+    if (satisfaction) satisfaction.textContent = '96%';
 }
 
+
+// ===============================
+// COMPLETED LIST
+// ===============================
 function loadCompletedList() {
-    const completed = state.workOrders.filter(wo => wo.status === 3);
+
+    if (!state.workOrders) return;
+
+    const completed = state.workOrders.filter(wo => Number(wo.status) === 3);
     const list = document.getElementById('completedItems');
     
     if (!list) return;
@@ -59,19 +99,27 @@ function loadCompletedList() {
     `).join('');
 }
 
+
+// ===============================
+// COMPLETION CHART
+// ===============================
 function loadCompletionChart() {
+
     const ctx = document.getElementById('completionChart');
-    if (!ctx) return;
+    if (!ctx || !state.workOrders) return;
     
-    // Group by month
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const completedData = new Array(12).fill(0);
     
     state.workOrders.forEach(wo => {
-        if (wo.status === 3) {
+
+        if (Number(wo.status) === 3) {
+
             const month = new Date(wo.work_completed || wo.updated_at).getMonth();
             completedData[month]++;
+
         }
+
     });
     
     new Chart(ctx, {
@@ -88,25 +136,31 @@ function loadCompletionChart() {
         options: {
             responsive: true,
             plugins: {
-                legend: {
-                    display: false
-                }
+                legend: { display: false }
             },
             scales: {
                 y: {
                     beginAtZero: true,
                     grid: {
                         display: true,
-                        color: 'rgba(0, 0, 0, 0.1)'
+                        color: 'rgba(0,0,0,0.1)'
                     }
                 }
             }
         }
     });
+
 }
 
+
+// ===============================
+// EXPORT FUNCTION
+// ===============================
 window.exportWO = function(id) {
+
     const wo = state.workOrders.find(w => w.id === id);
+    if (!wo) return;
+
     alert(`Exporting work order: ${wo.id_wo}`);
-    // Implement export functionality
+
 };
