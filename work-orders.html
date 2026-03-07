@@ -3,373 +3,250 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Work Order - WO System</title>
+    <title>Work Orders - WO System</title>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Additional specific styles for detail page */
-        .detail-container {
-            max-width: 1200px;
-            margin: 0 auto;
+        /* Additional styles for work orders page */
+        .workorder-row {
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
         
-        /* Header Styles */
-        .detail-header {
+        .workorder-row:hover {
+            background-color: var(--primary-soft) !important;
+        }
+        
+        .workorder-row.active {
+            background-color: var(--primary-soft);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .detail-card {
             background: white;
-            border-radius: 15px;
+            border-radius: var(--radius-lg);
             padding: 25px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 10px rgba(46, 204, 113, 0.1);
-            border: 1px solid #e8f5e9;
+            margin: 15px 0 25px 0;
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--primary-light);
+            display: none;
+            animation: slideDown 0.3s ease;
         }
         
-        .wo-title {
-            font-size: 14px;
-            color: #7f8c8d;
-            margin-bottom: 5px;
-            letter-spacing: 0.5px;
+        .detail-card.show {
+            display: block;
         }
         
-        .wo-id {
-            font-size: 24px;
-            font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 15px;
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
         
-        .wo-meta {
-            display: flex;
-            gap: 30px;
-        }
-        
-        .meta-item {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .meta-label {
-            font-size: 12px;
-            color: #95a5a6;
-            margin-bottom: 3px;
-        }
-        
-        .meta-value {
-            font-size: 14px;
-            color: #2c3e50;
-            font-weight: 500;
-        }
-        
-        /* Grid Layout */
-        .content-grid {
+        .detail-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(2, 1fr);
             gap: 25px;
-            margin-bottom: 25px;
         }
         
-        /* Card Styles */
-        .info-card {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 2px 10px rgba(46, 204, 113, 0.1);
-            border: 1px solid #e8f5e9;
-            margin-bottom: 25px;
+        .detail-section {
+            background: var(--gray-100);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 1px solid var(--primary-soft);
         }
         
-        .info-card:last-child {
-            margin-bottom: 0;
-        }
-        
-        .card-title {
-            font-size: 18px;
+        .detail-section h4 {
+            color: var(--dark);
+            font-size: 16px;
             font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #e8f5e9;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary-light);
             display: flex;
             align-items: center;
             gap: 8px;
         }
         
-        .card-title .icon {
-            font-size: 20px;
+        .detail-item {
+            display: flex;
+            margin-bottom: 12px;
+            font-size: 14px;
         }
         
-        /* Table Styles */
-        .info-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        .info-table tr {
-            border-bottom: 1px solid #e8f5e9;
-        }
-        
-        .info-table tr:last-child {
-            border-bottom: none;
-        }
-        
-        .info-table td {
-            padding: 12px 5px;
-            vertical-align: top;
-        }
-        
-        .info-table td:first-child {
-            width: 40%;
-            color: #7f8c8d;
+        .detail-label {
+            width: 120px;
+            color: var(--gray-600);
             font-weight: 500;
         }
         
-        .info-table td:last-child {
-            width: 60%;
-            color: #2c3e50;
+        .detail-value {
+            flex: 1;
+            color: var(--dark);
             font-weight: 500;
         }
         
-        /* Department Sections */
-        .department-section {
-            margin-bottom: 25px;
+        .detail-value.empty {
+            color: var(--gray-500);
+            font-style: italic;
         }
         
-        .department-section:last-child {
-            margin-bottom: 0;
-        }
-        
-        .department-title {
-            font-size: 16px;
+        .priority-badge {
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 11px;
             font-weight: 600;
-            color: #2c3e50;
-            margin-bottom: 15px;
-            padding-left: 5px;
-            border-left: 3px solid #2ecc71;
-            padding-left: 10px;
+            display: inline-block;
         }
         
-        /* Timeline Styles */
-        .timeline {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+        .priority-high {
+            background: #fde8e8;
+            color: var(--danger);
+            border: 1px solid #fad1d1;
         }
         
-        .timeline-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 10px;
-            transition: all 0.3s ease;
+        .priority-medium {
+            background: #fff3d6;
+            color: var(--warning);
+            border: 1px solid #ffebc2;
         }
         
-        .timeline-item:hover {
-            background: #e8f5e9;
-            transform: translateX(5px);
+        .priority-low {
+            background: var(--primary-soft);
+            color: var(--primary-dark);
+            border: 1px solid var(--primary-light);
         }
         
-        .timeline-icon {
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-pending {
+            background: var(--gray-200);
+            color: var(--gray-600);
+            border: 1px solid var(--gray-300);
+        }
+        
+        .status-progress {
+            background: #fff3d6;
+            color: var(--warning);
+            border: 1px solid #ffebc2;
+        }
+        
+        .status-completed {
+            background: var(--primary-soft);
+            color: var(--primary-dark);
+            border: 1px solid var(--primary-light);
+        }
+        
+        .close-detail {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray-500);
+            transition: var(--transition);
             width: 40px;
             height: 40px;
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
-            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 18px;
-            flex-shrink: 0;
-        }
-        
-        .timeline-content {
-            flex: 1;
-        }
-        
-        .timeline-label {
-            font-size: 12px;
-            color: #7f8c8d;
-            margin-bottom: 3px;
-        }
-        
-        .timeline-value {
-            font-size: 15px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        
-        .timeline-value.empty {
-            color: #95a5a6;
-            font-style: italic;
-        }
-        
-        /* Requestor Styles */
-        .requestor-info {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            padding: 15px;
-            background: linear-gradient(135deg, #f8f9fa, #e8f5e9);
-            border-radius: 12px;
-        }
-        
-        .requestor-avatar {
-            width: 70px;
-            height: 70px;
-            background: linear-gradient(135deg, #2ecc71, #27ae60);
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        }
+        
+        .close-detail:hover {
+            background: var(--danger);
             color: white;
-            font-size: 28px;
-            font-weight: 600;
-            border: 3px solid white;
-            box-shadow: 0 2px 10px rgba(46, 204, 113, 0.3);
+            transform: rotate(90deg);
         }
         
-        .requestor-details {
-            flex: 1;
+        .detail-header {
+            position: relative;
+            margin-bottom: 20px;
+            padding-right: 50px;
         }
         
-        .requestor-name {
-            font-size: 18px;
-            font-weight: 600;
-            color: #2c3e50;
+        .detail-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark);
             margin-bottom: 5px;
         }
         
-        .requestor-id {
+        .detail-subtitle {
             font-size: 14px;
-            color: #7f8c8d;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            color: var(--gray-600);
         }
         
-        .requestor-id .badge {
-            background: #2ecc71;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-        }
-        
-        /* PIC Info Styles */
-        .pic-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 12px;
-        }
-        
-        .pic-item {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .pic-label {
-            font-size: 12px;
-            color: #95a5a6;
-            margin-bottom: 5px;
-        }
-        
-        .pic-value {
-            font-size: 16px;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-        
-        .pic-value.empty {
-            color: #95a5a6;
-            font-style: italic;
-        }
-        
-        /* Image & Description Styles */
-        .image-info {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        
-        .image-path {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 13px;
-            color: #3498db;
-            word-break: break-all;
-            border: 1px dashed #2ecc71;
-        }
-        
-        .description-box {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            min-height: 60px;
-            color: #2c3e50;
-            border-left: 3px solid #2ecc71;
-        }
-        
-        .description-box.empty {
-            color: #95a5a6;
-            font-style: italic;
-        }
-        
-        .description-label {
-            font-size: 13px;
-            color: #7f8c8d;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        
-        /* Back Button */
-        .back-btn {
-            margin-top: 25px;
-            text-align: left;
-        }
-        
-        .back-btn a {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 12px 24px;
-            background: white;
-            border: 1px solid #2ecc71;
-            border-radius: 8px;
-            color: #2ecc71;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-        }
-        
-        .back-btn a:hover {
-            background: #2ecc71;
-            color: white;
-            transform: translateX(-5px);
-        }
-        
-        /* Responsive */
         @media (max-width: 768px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .wo-meta {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .pic-info {
+            .detail-grid {
                 grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                <span class="logo-icon">📋</span>
+                <h2>WO<span>System</span></h2>
+            </div>
+        </div>
+            
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+
+                <a href="work-orders.html" class="nav-item active">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">Work Orders</span>
+                    <span class="nav-badge" id="woBadge"></span>
+                </a>
+
+                <a href="in-progress.html" class="nav-item">
+                    <span class="nav-icon">⏳</span>
+                    <span class="nav-text">In Progress</span>
+                    <span class="nav-badge" id="progressBadge"></span>
+                </a>
+
+                <a href="completed.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span class="nav-text">Completed</span>
+                    <span class="nav-badge" id="completedBadge"></span>
+                </a>
+
+                <div class="nav-divider"></div>
+
+                <a href="notifications.html" class="nav-item">
+                    <span class="nav-icon">🔔</span>
+                    <span class="nav-text">Notifications</span>
+                    <span class="nav-badge" id="notifBadge"></span>
+                </a>
+
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Settings</span>
+                </a>
+            </nav>
+        </aside>
+
         <!-- Main Content -->
         <main class="main-content">
             <!-- Top Navigation -->
@@ -377,290 +254,114 @@
                 <button id="sidebarToggle" class="sidebar-toggle">☰</button>
 
                 <div class="page-info">
-                    <h1 class="page-title">Detail Work Order</h1>
+                    <h1 class="page-title">Work Orders</h1>
                     <div class="breadcrumb">
-                        <a href="work-orders.html">Work Orders</a> / <span class="current">Detail WO</span>
+                        <span class="current">Work Orders</span>
                     </div>
                 </div>
                 <div class="top-actions">
                     <div class="search-wrapper">
                         <span class="search-icon">🔍</span>
-                        <input type="text" placeholder="Cari work order..." class="search-input">
+                        <input type="text" placeholder="Cari work order..." class="search-input" id="searchInput">
                     </div>
                     <div class="action-group">
-                        <div class="notification-wrapper">
+                        <div class="filter-bar">
+                            <label>
+                                <span style="margin-right: 5px;">📅</span>
+                                <input type="date" id="filterDate" class="form-input" style="width: auto;">
+                            </label>
+                        </div>
+                        <div class="notification-wrapper" id="notificationIcon">
                             <span class="notification-icon">🔔</span>
-                            <span class="notification-badge">0</span>
+                            <span class="notification-badge" id="notifCount">0</span>
+                        </div>
+                        <div class="sound-control">
+                            <button class="sound-btn" id="soundToggle">🔊</button>
+                            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="80">
                         </div>
                     </div>
                 </div>
             </header>
-        <div class="app-container">
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <span class="logo-icon">📋</span>
-                <h2>WO<span>System</span></h2>
+
+            <!-- Work Orders Content -->
+            <div class="workorders-container">
+                <!-- Stats Cards -->
+                <div class="stats-grid" style="margin-bottom: 25px;">
+                    <div class="stat-card">
+                        <div class="stat-icon">📋</div>
+                        <div class="stat-content">
+                            <span class="stat-label">Total Work Orders</span>
+                            <span class="stat-value" id="totalWO">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏳</div>
+                        <div class="stat-content">
+                            <span class="stat-label">In Progress</span>
+                            <span class="stat-value" id="inProgressWO">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <div class="stat-content">
+                            <span class="stat-label">Completed</span>
+                            <span class="stat-value" id="completedWO">0</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⏰</div>
+                        <div class="stat-content">
+                            <span class="stat-label">Pending</span>
+                            <span class="stat-value" id="pendingWO">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="filter-bar">
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-status="all">All</button>
+                        <button class="filter-tab" data-status="1">Pending</button>
+                        <button class="filter-tab" data-status="2">In Progress</button>
+                        <button class="filter-tab" data-status="3">Completed</button>
+                    </div>
+                    <div class="filter-actions">
+                        <button class="btn btn-outline" id="refreshBtn">
+                            <span>🔄</span> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Detail Card Container (akan muncul saat row diklik) -->
+                <div id="detailCardContainer" style="margin-bottom: 25px; display: none;"></div>
+
+                    <!-- Detail card akan diisi oleh JavaScript -->
+                </div>
+
+                <!-- Work Orders Table -->
+               <div class="table-container">
+                <table class="wo-table">
+                    <thead>
+                        <tr>
+                            <th>ID WO</th>
+                            <th>Job Name</th>
+                            <th>Department</th>
+                            <th>Requestor</th>
+                            <th>Tanggal Request</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Detail</th> 
+                        </tr>
+                    </thead>
+                    <tbody id="woTableBody">
+                        <!-- Dynamic content from JS -->
+                    </tbody>
+                </table>
             </div>
-        </div>
-        
-        <nav class="sidebar-nav">
-            <a href="index.html" class="nav-item">
-                <span class="nav-icon">📊</span>
-                <span class="nav-text">Dashboard</span>
-            </a>
 
-            <a href="work-orders.html" class="nav-item active">
-                <span class="nav-icon">📋</span>
-                <span class="nav-text">Work Orders</span>
-                <span class="nav-badge" id="woBadge"></span>
-            </a>
-
-            <a href="in-progress.html" class="nav-item">
-                <span class="nav-icon">⏳</span>
-                <span class="nav-text">In Progress</span>
-                <span class="nav-badge" id="progressBadge"></span>
-            </a>
-
-            <a href="completed.html" class="nav-item">
-                <span class="nav-icon">✅</span>
-                <span class="nav-text">Completed</span>
-                <span class="nav-badge" id="completedBadge"></span>
-            </a>
-
-            <div class="nav-divider"></div>
-
-            <a href="notifications.html" class="nav-item">
-                <span class="nav-icon">🔔</span>
-                <span class="nav-text">Notifications</span>
-                <span class="nav-badge" id="notifBadge"></span>
-            </a>
-
-            <a href="settings.html" class="nav-item">
-                <span class="nav-icon">⚙️</span>
-                <span class="nav-text">Settings</span>
-            </a>
-        </nav>
-    </aside>
-
-            <!-- Detail Content -->
-            <div class="detail-container">
-                <!-- Header dengan ID WO -->
-                <div class="detail-header">
-                    <div class="wo-title">ID WORK ORDER</div>
-                    <div class="wo-id" id="woId">-</div>
-                    <div class="wo-meta">
-                        <div class="meta-item">
-                            <span class="meta-label">Created at</span>
-                            <span class="meta-value" id="createdAt">-</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Updated at</span>
-                            <span class="meta-value" id="updatedAt">-</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Grid 2 Kolom - Baris 1 -->
-                <div class="content-grid">
-                    <!-- Kolom Kiri: Informasi Pekerjaan -->
-                    <div class="info-card">
-                        <h3 class="card-title">
-                            <span class="icon">🔧</span>
-                            Informasi Pekerjaan
-                        </h3>
-                        <table class="info-table">
-                            <tr>
-                                <td>JOB_NAME</td>
-                                <td><strong id="jobName">-</strong></td>
-                            </tr>
-                            <tr>
-                                <td>WORK_LOCATION</td>
-                                <td><strong id="workLocation">-</strong></td>
-                            </tr>
-                            <tr>
-                                <td>ASSET</td>
-                                <td><strong id="asset">-</strong></td>
-                            </tr>
-                            <tr>
-                                <td>YEARS</td>
-                                <td><strong id="years">-</strong></td>
-                            </tr>
-                            <tr>
-                                <td>PRIORITY</td>
-                                <td>
-                                    <strong id="priority">-</strong>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <!-- Kolom Kanan: Informasi Department -->
-                    <div class="info-card">
-                        <h3 class="card-title">
-                            <span class="icon">🏢</span>
-                            Informasi Department
-                        </h3>
-                        
-                        <!-- Department Asal -->
-                        <div class="department-section">
-                            <h4 class="department-title">Department Asal</h4>
-                            <table class="info-table">
-                                <tr>
-                                    <td>id_dept</td>
-                                    <td><strong id="idDept">-</strong></td>
-                                </tr>
-                                <tr>
-                                    <td>department</td>
-                                    <td><strong id="department">-</strong></td>
-                                </tr>
-                                <tr>
-                                    <td>id_sub_dept</td>
-                                    <td><strong id="idSubDept">-</strong></td>
-                                </tr>
-                                <tr>
-                                    <td>sub_department</td>
-                                    <td><strong id="subDepartment">-</strong></td>
-                                </tr>
-                            </table>
-                        </div>
-
-                        <!-- Department Tujuan -->
-                        <div class="department-section">
-                            <h4 class="department-title">Department Tujuan</h4>
-                            <table class="info-table">
-                                <tr>
-                                    <td>id_dept_request</td>
-                                    <td><strong id="idDeptRequest">-</strong></td>
-                                </tr>
-                                <tr>
-                                    <td>departemen_request</td>
-                                    <td><strong id="deptRequest">-</strong></td>
-                                </tr>
-                                <tr>
-                                    <td>id_sub_dept_request</td>
-                                    <td><strong id="idSubDeptRequest">-</strong></td>
-                                </tr>
-                                <tr>
-                                    <td>Sub_Department</td>
-                                    <td><strong id="subDeptRequest">-</strong></td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Grid 2 Kolom - Baris 2 -->
-                <div class="content-grid">
-                    <!-- Kolom Kiri: Timeline & Informasi Requestor -->
-                    <div>
-                        <!-- Timeline Card -->
-                        <div class="info-card">
-                            <h3 class="card-title">
-                                <span class="icon">⏰</span>
-                                Timeline
-                            </h3>
-                            <div class="timeline">
-                                <div class="timeline-item">
-                                    <div class="timeline-icon">📅</div>
-                                    <div class="timeline-content">
-                                        <div class="timeline-label">Tanggal Request</div>
-                                        <div class="timeline-value" id="dateRequest">-</div>
-                                    </div>
-                                </div>
-                                <div class="timeline-item">
-                                    <div class="timeline-icon">▶️</div>
-                                    <div class="timeline-content">
-                                        <div class="timeline-label">Work Started</div>
-                                        <div class="timeline-value empty" id="workStarted">-</div>
-                                    </div>
-                                </div>
-                                <div class="timeline-item">
-                                    <div class="timeline-icon">✅</div>
-                                    <div class="timeline-content">
-                                        <div class="timeline-label">Work Completed</div>
-                                        <div class="timeline-value empty" id="workCompleted">-</div>
-                                    </div>
-                                </div>
-                                <div class="timeline-item">
-                                    <div class="timeline-icon">⚠️</div>
-                                    <div class="timeline-content">
-                                        <div class="timeline-label">Expired</div>
-                                        <div class="timeline-value empty" id="expired">-</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Informasi Requestor Card -->
-                        <div class="info-card">
-                            <h3 class="card-title">
-                                <span class="icon">👤</span>
-                                Informasi Requestor
-                            </h3>
-                            <div class="requestor-info">
-                                <div class="requestor-avatar" id="requestorAvatar">-</div>
-                                <div class="requestor-details">
-                                    <div class="requestor-name" id="requestorName">-</div>
-                                    <div class="requestor-id">
-                                        <span id="requestorId">-</span>
-                                        <span class="badge">-</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Kolom Kanan: Informasi PIC & Gambar Deskripsi -->
-                    <div>
-                        <!-- Informasi PIC Card -->
-                        <div class="info-card">
-                            <h3 class="card-title">
-                                <span class="icon">👥</span>
-                                Informasi PIC
-                            </h3>
-                            <div class="pic-info">
-                                <div class="pic-item">
-                                    <span class="pic-label">PIC ID</span>
-                                    <span class="pic-value empty" id="picId">-</span>
-                                </div>
-                                <div class="pic-item">
-                                    <span class="pic-label">PIC Name</span>
-                                    <span class="pic-value empty" id="picName">-</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Gambar & Deskripsi Card -->
-                        <div class="info-card">
-                            <h3 class="card-title">
-                                <span class="icon">🖼️</span>
-                                Gambar & Deskripsi
-                            </h3>
-                            <div class="image-info">
-                                <div>
-                                    <div class="description-label">Job Image</div>
-                                    <div class="image-path" id="jobImage">-</div>
-                                </div>
-                                
-                                <div>
-                                    <div class="description-label">Description of Image</div>
-                                    <div class="description-box empty" id="descImage">-</div>
-                                </div>
-                                
-                                <div>
-                                    <div class="description-label">Description of Work Order</div>
-                                    <div class="description-box empty" id="descWO">-</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Back Button -->
-                <div class="back-btn">
-                    <a href="work-orders.html">← Kembali ke Work Orders</a>
+                <!-- Pagination -->
+                <div class="pagination" id="pagination">
+                    <!-- Dynamic pagination -->
                 </div>
             </div>
 
@@ -668,16 +369,17 @@
             <div class="notifications-panel" id="notificationsPanel">
                 <div class="panel-header">
                     <h4>Notifikasi</h4>
-                    <button class="mark-read">Tandai dibaca</button>
+                    <button class="mark-read" id="markAllRead">Tandai dibaca</button>
                 </div>
-                <div class="panel-body">
-                    <!-- Notifications list -->
+                <div class="panel-body" id="notificationsList">
+                    <!-- Notifications will be inserted here -->
                 </div>
             </div>
         </main>
     </div>
-  
-    <audio id="notificationSound" src="/sounds/notification4.wav" preload="auto"></audio>
+
+    <audio id="notificationSound" src="sounds/notification4.wav" preload="auto"></audio>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/main.js"></script>
     <script src="js/workorders.js"></script>
 </body>
