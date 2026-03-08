@@ -85,6 +85,7 @@ h1 { font-size: var(--font-size-xxxl); }
 h2 { font-size: var(--font-size-xxl); }
 h3 { font-size: var(--font-size-xl); }
 h4 { font-size: var(--font-size-lg); }
+
 /* === LAYOUT UTAMA === */
 .app-container {
     display: flex;
@@ -143,30 +144,29 @@ h4 { font-size: var(--font-size-lg); }
 }
 
 .sidebar-header {
-    padding: 25px 20px;
-    border-bottom: 2px solid var(--primary-light);
-    background: linear-gradient(to right, var(--white), var(--primary-soft));
+    padding: 15px 20px;
+    background: none;
+    border: none;
+    text-align: center;
 }
 
 .logo {
     display: flex;
     align-items: center;
-    gap: 12px;
-}
-
-.logo-icon {
-    font-size: 28px;
-    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    width: 45px;
-    height: 45px;
-    display: flex;
-    align-items: center;
+    gap: 15px;
     justify-content: center;
-    border-radius: var(--radius);
-    color: var(--white);
-    box-shadow: var(--shadow-sm);
 }
 
+.logo-icon{
+    width: 120px;
+    height: auto;
+    display: block;
+    margin: auto;
+}
+
+.logo img{
+    max-width: 120px;
+}
 .logo h2 {
     font-size: 22px;
     font-weight: 700;
@@ -244,26 +244,6 @@ h4 { font-size: var(--font-size-lg); }
     height: 1px;
     background: var(--primary-light);
     margin: 15px 0;
-}
-
-.sidebar-footer {
-    padding: 20px;
-    border-top: 2px solid var(--primary-light);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--white);
-}
-
-.user-profile {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    cursor: pointer;
-    padding: 8px 12px;
-    border-radius: var(--radius);
-    transition: var(--transition);
 }
 
 .user-profile:hover {
@@ -467,6 +447,65 @@ h4 { font-size: var(--font-size-lg); }
     color: var(--dark);
     font-weight: 500;
     border: 1px solid var(--primary-light);
+}
+
+/* Notification Badge Styling */
+.nav-badge {
+    background: var(--primary);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    min-width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px;
+    transition: all 0.3s ease;
+}
+
+/* Sembunyikan badge jika tidak ada notifikasi */
+.nav-badge[style*="display: none"] {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Untuk notification icon di top bar */
+.notification-wrapper {
+    position: relative;
+    cursor: pointer;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--primary);
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 600;
+    min-width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(46,204,113,0.3);
+    transition: all 0.3s ease;
+}
+
+/* Animasi untuk badge */
+.notification-badge:not([style*="display: none"]) {
+    animation: badgePop 0.3s ease;
+}
+
+@keyframes badgePop {
+    0% { transform: scale(0); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
 }
 
 .notification-wrapper {

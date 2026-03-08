@@ -1,134 +1,141 @@
-let lastNotificationId = null;
-function initNotifications() {
+// ===============================
+// NOTIFICATIONS PAGE
+// ===============================
 
-    if (state.notifications.length === 0) return;
+let currentFilter = 'all';
+let displayedCount = 10;
+const incrementCount = 10;
 
-    const newestId = state.notifications[0].id;
-
-    if (lastNotificationId && newestId !== lastNotificationId) {
-        playNotificationSound();
-    }
-
-    lastNotificationId = newestId;
-
-    loadAllNotifications();
-    setupNotificationFilters();
-}
-
-function loadAllNotifications() {
-    const list = document.getElementById('fullNotificationList');
-    if (!list) return;
+document.addEventListener("DOMContentLoaded", function() {
+    console.log("Notifications page loaded");
     
-    list.innerHTML = state.notifications.map(notif => `
-        <div class="notif-item-full ${!notif.read ? 'unread' : ''}" data-id="${notif.id}">
-            <div class="notif-icon-large">${notif.icon}</div>
-            <div class="notif-content-full">
-                <div class="notif-header">
-                    <h4>${notif.title}</h4>
-                    <span class="notif-time">${notif.time}</span>
-                </div>
-                <p class="notif-message">${notif.message}</p>
-                <div class="notif-footer">
-                    <span class="notif-type ${notif.type}">${notif.type}</span>
-                    <button class="notif-action" onclick="markSingleRead(${notif.id})">
-                        ${notif.read ? 'Read' : 'Mark as read'}
-                    </button>
-                </div>
-            </div>
-        </div>
-    `).join('');
-}
+    setupEventListeners();
+    window.loadNotifications(); // Panggil fungsi dari main.js
+});
 
-function setupNotificationFilters() {
-    const tabs = document.querySelectorAll('.notif-tab');
+function setupEventListeners() {
+    // Filter tabs
+    const tabs = document.querySelectorAll('.filter-tab');
     tabs.forEach(tab => {
         tab.addEventListener('click', function() {
             tabs.forEach(t => t.classList.remove('active'));
             this.classList.add('active');
-            
-            const filter = this.dataset.type;
-            filterNotifications(filter);
+            currentFilter = this.dataset.filter;
+            displayedCount = 10;
+            window.loadNotifications();
         });
     });
     
-    // Load more button
-    const loadMore = document.getElementById('loadMore');
-    if (loadMore) {
-        loadMore.addEventListener('click', () => {
-            alert('Loading more notifications...');
+    // Mark all read button
+    const markAllBtn = document.getElementById('markAllReadBtn');
+    if (markAllBtn) {
+        markAllBtn.addEventListener('click', function() {
+            if (typeof window.markAllNotificationsAsRead === 'function') {
+                window.markAllNotificationsAsRead();
+            }
         });
     }
+    
+    // Load more button
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', loadMore);
+    }
 }
 
-function filterNotifications(filter) {
-    let filtered = state.notifications;
+// Fungsi loadNotifications sudah didefinisikan di main.js
+// Tapi kita override untuk menambahkan filter
+window.loadNotifications = function() {
+    const container = document.getElementById('notificationList');
+    if (!container) return;
     
-    switch(filter) {
-        case 'unread':
-            filtered = state.notifications.filter(n => !n.read);
-            break;
-        case 'mentions':
-            filtered = state.notifications.filter(n => n.type === 'mention' || n.type === 'comment');
-            break;
+    if (!state.notifications || state.notifications.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">🔔</div>
+                <h3>Tidak Ada Notifikasi</h3>
+                <p>Belum ada notifikasi saat ini</p>
+            </div>
+        `;
+        updateLoadMoreButton(0);
+        return;
     }
     
-    displayFilteredNotifications(filtered);
-}
-
-function displayFilteredNotifications(notifications) {
-    const list = document.getElementById('fullNotificationList');
-    if (!list) return;
+    // Filter berdasarkan tab
+    let filteredNotifs = [...state.notifications];
+    if (currentFilter === 'unread') {
+        filteredNotifs = filteredNotifs.filter(n => !n.read);
+    }
     
-    list.innerHTML = notifications.map(notif => `
-        <div class="notif-item-full ${!notif.read ? 'unread' : ''}" data-id="${notif.id}">
-            <div class="notif-icon-large">${notif.icon}</div>
-            <div class="notif-content-full">
-                <div class="notif-header">
-                    <h4>${notif.title}</h4>
-                    <span class="notif-time">${notif.time}</span>
-                </div>
-                <p class="notif-message">${notif.message}</p>
-                <div class="notif-footer">
-                    <span class="notif-type ${notif.type}">${notif.type}</span>
-                    <button class="notif-action" onclick="markSingleRead(${notif.id})">
-                        ${notif.read ? 'Read' : 'Mark as read'}
-                    </button>
+    // Sort by timestamp (newest first)
+    filteredNotifs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    
+    // Pagination
+    const displayNotifs = filteredNotifs.slice(0, displayedCount);
+    
+    if (displayNotifs.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">🔔</div>
+                <h3>Tidak Ada Notifikasi</h3>
+                <p>${currentFilter === 'unread' ? 'Tidak ada notifikasi yang belum dibaca' : 'Belum ada notifikasi'}</p>
+            </div>
+        `;
+    } else {
+        container.innerHTML = displayNotifs.map(notif => `
+            <div class="notif-item-full ${!notif.read ? 'unread' : ''}" onclick="markNotificationAsRead('${notif.id}')">
+                <div class="notif-icon-large">${notif.icon}</div>
+                <div class="notif-content-full">
+                    <div class="notif-header-row">
+                        <h4>${notif.title}</h4>
+                        <span class="notif-time">${notif.time}</span>
+                    </div>
+                    <p class="notif-message">${notif.message}</p>
+                    <div class="notif-footer">
+                        <span class="notif-type ${notif.type}">${notif.type.replace('-', ' ')}</span>
+                        ${!notif.read ? '<span class="notif-read">Baru</span>' : ''}
+                    </div>
                 </div>
             </div>
-        </div>
-    `).join('');
+        `).join('');
+    }
+    
+    updateLoadMoreButton(filteredNotifs.length);
+};
+
+function updateLoadMoreButton(totalItems) {
+    const loadMoreContainer = document.getElementById('loadMoreContainer');
+    if (!loadMoreContainer) return;
+    
+    if (totalItems > displayedCount) {
+        loadMoreContainer.style.display = 'block';
+    } else {
+        loadMoreContainer.style.display = 'none';
+    }
 }
 
-window.markSingleRead = function(id) {
-    state.notifications = state.notifications.map(n => 
-        n.id === id ? { ...n, read: true } : n
-    );
+function loadMore() {
+    displayedCount += incrementCount;
+    window.loadNotifications();
+}
+
+// Override fungsi markNotificationAsRead dari main.js
+window.markNotificationAsRead = function(id) {
+    console.log('Marking notification as read from notifications page:', id);
     
-    // Update main notification badge
-    updateNotifications();
-    
-    // Reload current view
-    const activeTab = document.querySelector('.notif-tab.active');
-    if (activeTab) {
-        filterNotifications(activeTab.dataset.type);
-    } else {
-        loadAllNotifications();
+    const notif = state.notifications.find(n => n.id == id);
+    if (notif) {
+        notif.read = true;
+        
+        // Reload halaman notifikasi
+        window.loadNotifications();
+        
+        // Update badges dan panel (fungsi dari main.js)
+        if (typeof updateNotificationBadges === 'function') {
+            updateNotificationBadges();
+        }
+        if (typeof updateNotificationsPanel === 'function') {
+            updateNotificationsPanel();
+        }
     }
 };
-// =============// PLAY NOTIFICATION SOUND // =============
-function playNotificationSound() {
-
-    const enabled = localStorage.getItem("wo_sound_enabled");
-    if (enabled !== "true") return;
-
-    const selectedSound =
-        localStorage.getItem("wo_selected_sound") ||
-        "sound/notification.mp3";
-
-    const volume =
-        localStorage.getItem("wo_volume") || 80;
-
-    const audio = new Audio(selectedSound);
-    audio.volume = volume / 100;
-    audio.play();
-}

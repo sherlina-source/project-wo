@@ -113,12 +113,6 @@ function loadUserSettings() {
 // ===============// FORM HANDLERS // ===============
 function setupFormHandlers() {
 
-    const saveBtn = document.querySelector('#profile .btn-primary');
-    if (saveBtn) saveBtn.addEventListener('click', saveProfile);
-
-    const updatePasswordBtn = document.querySelector('#security .btn-primary');
-    if (updatePasswordBtn) updatePasswordBtn.addEventListener('click', updatePassword);
-
     const themeOptions = document.querySelectorAll('.theme-option');
     themeOptions.forEach(option => {
         option.addEventListener('click', function () {
@@ -135,31 +129,6 @@ function setupFormHandlers() {
     if (savedTheme) applyTheme(savedTheme);
 }
 
-// ===============// PROFILE// ================
-function saveProfile(e) {
-    e.preventDefault();
-    alert('Profile updated successfully!');
-}
-
-// ===============// PASSWORD // ===============
-function updatePassword(e) {
-
-    e.preventDefault();
-
-    const passwords = document.querySelectorAll('#security input[type="password"]');
-
-    if (passwords[1].value !== passwords[2].value) {
-        alert('New passwords do not match!');
-        return;
-    }
-
-    if (passwords[1].value.length < 6) {
-        alert('Password must be at least 6 characters!');
-        return;
-    }
-
-    alert('Password updated successfully!');
-}
 
 // ================// THEME// ==================
 function applyTheme(theme) {

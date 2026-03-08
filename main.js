@@ -2,7 +2,8 @@
 // 🌍 CONFIG API
 // ===============================
 const API_BASE_URL = "https://stagingservicewo.salokapark.app/api/get_wo_request";
-const DEPT_ID = "DP011"; // ID Departemen yang digunakan
+const DEPT_ID = "DP011";
+const REFRESH_INTERVAL = 30000; // 30 detik
 
 // ===============================
 // 📦 STATE GLOBAL
@@ -10,41 +11,40 @@ const DEPT_ID = "DP011"; // ID Departemen yang digunakan
 window.state = window.state || {
     workOrders: [],
     notifications: [],
-    knownWOIds: [],
+    knownWOIds: new Set(), // Gunakan Set untuk tracking ID yang sudah dikenal
     lastWOCount: 0,
     currentPage: window.location.pathname.split("/").pop() || "dashboard.html"
 };
 
 // ===============================
-// 📡 FETCH WORK ORDERS UNTUK 1 DEPARTEMEN
+// 📌 ELEMENT REFERENCES
 // ===============================
-async function fetchWorkOrdersForDepartment() {
-    try {
-        document.body.classList.add("loading");
+const mainElements = {
+    soundToggle: document.getElementById('soundToggle'),
+    volumeSlider: document.getElementById('volumeSlider'),
+    notificationIcon: document.getElementById('notificationIcon'),
+    notificationsPanel: document.getElementById('notificationsPanel'),
+    markAllRead: document.getElementById('markAllRead'),
+    searchInput: document.getElementById('searchInput')
+};
 
-        // Hanya filter berdasarkan ID Departemen, TANPA filter tanggal
+// ===============================
+// 📡 FETCH ALL WORK ORDERS
+// ===============================
+async function fetchAllWorkOrders() {
+    try {
         const url = `${API_BASE_URL}?id_dept=${DEPT_ID}`;
-        
-        console.log('Fetching data for department:', DEPT_ID);
         const response = await fetch(url);
-        
         if (!response.ok) throw new Error("Server Error");
 
         const result = await response.json();
-
-        console.log("API Response for", DEPT_ID, ":", result);
-        console.log("Total data:", result.data?.length || 0);
-
-        document.body.classList.remove("loading");
         
         return (result?.status === "success" && Array.isArray(result?.data))
             ? result.data
             : [];
 
     } catch (error) {
-        document.body.classList.remove("loading");
         console.error("API Error:", error);
-        showError("Gagal terhubung ke server");
         return [];
     }
 }
@@ -53,14 +53,21 @@ async function fetchWorkOrdersForDepartment() {
 // 🚀 INIT APP
 // ===============================
 async function initApp() {
-    console.log("Initializing app for department:", DEPT_ID);
+    console.log("Initializing app...");
     
-    const data = await fetchWorkOrdersForDepartment();
+    const data = await fetchAllWorkOrders();
     
-    window.state.workOrders = data || [];
-    window.state.lastWOCount = window.state.workOrders.length;
-
-    console.log(`Total ${window.state.workOrders.length} work orders loaded for ${DEPT_ID}`);
+    if (data && data.length > 0) {
+        state.workOrders = data;
+        
+        // Inisialisasi Set dengan ID work order yang ADA
+        // TAPI JANGAN buat notifikasi untuk data lama
+        state.knownWOIds = new Set(data.map(wo => wo.id));
+        state.lastWOCount = data.length;
+        
+        // KOSONGKAN notifikasi di awal - tidak perlu notifikasi untuk data lama
+        state.notifications = [];
+    }
 
     // Update UI
     updateNotifications();
@@ -70,48 +77,289 @@ async function initApp() {
     initSidebar();
     initDateTime();
 
-    // Set interval untuk refresh (optional)
-    setInterval(checkNewWorkOrders, 30000);
+    // Set interval untuk refresh
+    setInterval(checkNewWorkOrders, REFRESH_INTERVAL);
 }
 
 // ===============================
 // 🔄 CEK WORK ORDER BARU
 // ===============================
 async function checkNewWorkOrders() {
-    const newData = await fetchWorkOrdersForDepartment();
+    const newData = await fetchAllWorkOrders();
+    
+    if (!newData || newData.length === 0) return;
 
-    if (newData.length > window.state.lastWOCount) {
-        // Ada work order baru
-        const newWO = newData[0];
+    // Cari work order baru (yang ID-nya belum ada di knownWOIds)
+    const newWO = newData.filter(wo => !state.knownWOIds.has(wo.id));
+    
+    if (newWO.length > 0) {
+        console.log(`Found ${newWO.length} NEW work orders`);
         
-        window.state.notifications.unshift({
-            id: Date.now(),
-            title: "Work Order Baru",
-            message: `${newWO.id_wo} - ${newWO.job_name || 'No Title'}`,
-            time: "Baru saja",
-            read: false,
-            icon: "📋"
+        // Tambahkan ID baru ke Set
+        newWO.forEach(wo => state.knownWOIds.add(wo.id));
+        
+        // Buat notifikasi HANYA untuk work order BARU
+        newWO.forEach(wo => {
+            const newNotif = {
+                id: Date.now() + wo.id,
+                title: "New Work Order",
+                message: `${wo.id_wo} - ${wo.job_name || 'New work order'}`,
+                time: "Baru saja",
+                timestamp: new Date().toISOString(),
+                read: false,
+                type: 'work-order',
+                icon: '📋',
+                workOrderId: wo.id
+            };
+            
+            // Tambahkan ke awal array
+            state.notifications.unshift(newNotif);
         });
-
+        
+        // Batasi jumlah notifikasi (max 20)
+        if (state.notifications.length > 20) {
+            state.notifications = state.notifications.slice(0, 20);
+        }
+        
+        // Update UI
+        updateNotifications();
+        
+        // Suara hanya berbunyi jika ada notifikasi BELUM DIBACA
         playNotificationSound();
         animateNotificationBell();
     }
 
-    window.state.lastWOCount = newData.length;
-    window.state.workOrders = newData;
-    updateNotifications();
+    state.lastWOCount = newData.length;
+    state.workOrders = newData;
 }
 
 // ===============================
-// 🔔 NOTIFICATIONS
+// 🔔 UPDATE NOTIFICATIONS UI
 // ===============================
 function updateNotifications() {
-    const badge = document.getElementById('notifCount') || document.getElementById('notificationBadge');
-    if (badge) {
-        const unreadCount = window.state.notifications.filter(n => !n.read).length;
-        badge.textContent = unreadCount;
-        badge.style.display = unreadCount > 0 ? "inline-block" : "none";
+    // Update badge di semua tempat
+    updateNotificationBadges();
+    
+    // Update panel notifikasi
+    updateNotificationsPanel();
+    
+    // Update halaman notifications jika sedang dibuka
+    if (typeof window.loadNotifications === 'function') {
+        window.loadNotifications();
     }
+}
+
+// Update semua badge notifikasi di seluruh halaman
+function updateNotificationBadges() {
+    const unreadCount = state.notifications.filter(n => !n.read).length;
+    
+    console.log(`Updating badges - Unread count: ${unreadCount}`);
+    
+    // Daftar semua ID badge yang mungkin ada di berbagai halaman
+    const badgeIds = [
+        'notifCount',           // Dashboard
+        'notificationBadge',     // Work Orders
+        'notifBadge',           // Sidebar badge
+        'woBadge',              // Work Orders badge
+        'progressBadge',        // In Progress badge
+        'completedBadge'        // Completed badge
+    ];
+    
+    badgeIds.forEach(id => {
+        const badge = document.getElementById(id);
+        if (badge) {
+            if (unreadCount > 0) {
+                // Jika ada notifikasi, tampilkan badge dengan jumlah
+                badge.textContent = unreadCount;
+                badge.style.display = 'inline-block';
+                badge.style.visibility = 'visible';
+                badge.style.opacity = '1';
+            } else {
+                // Jika tidak ada notifikasi, sembunyikan badge
+                badge.style.display = 'none';
+                badge.style.visibility = 'hidden';
+                badge.style.opacity = '0';
+            }
+        }
+    });
+    
+    // Update badge di sidebar nav items (jika menggunakan class)
+    const navBadges = document.querySelectorAll('.nav-badge');
+    navBadges.forEach(badge => {
+        if (unreadCount > 0) {
+            badge.textContent = unreadCount;
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
+    });
+}
+
+// Update panel notifikasi (floating panel)
+function updateNotificationsPanel() {
+    const panel = document.getElementById('notificationsList') || 
+                  document.getElementById('panelNotificationList');
+    if (!panel) return;
+    
+    // Ambil 5 notifikasi TERBARU
+    const recentNotifs = [...state.notifications]
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .slice(0, 5);
+    
+    if (recentNotifs.length === 0) {
+        panel.innerHTML = `
+            <div style="text-align: center; padding: 30px; color: var(--gray-500);">
+                <div style="font-size: 32px; margin-bottom: 10px;">🔔</div>
+                <div style="font-size: 14px;">Tidak ada notifikasi</div>
+            </div>
+        `;
+        return;
+    }
+    
+    panel.innerHTML = recentNotifs.map(notif => `
+        <div class="notif-item ${!notif.read ? 'unread' : ''}" onclick="markNotificationAsRead('${notif.id}')">
+            <div class="notif-icon">${notif.icon}</div>
+            <div class="notif-content">
+                <div class="notif-title">${notif.title}</div>
+                <div class="notif-message">${notif.message}</div>
+                <div class="notif-time">${notif.time}</div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// ===============================
+// ✅ MARK NOTIFICATION AS READ
+// ===============================
+window.markNotificationAsRead = function(id) {
+    console.log('Marking notification as read:', id);
+    
+    const notif = state.notifications.find(n => n.id == id);
+    if (notif) {
+        notif.read = true;
+        
+        // Update semua UI
+        updateNotificationBadges();
+        updateNotificationsPanel();
+        
+        // Update halaman notifications jika ada
+        if (typeof window.loadNotifications === 'function') {
+            window.loadNotifications();
+        }
+    }
+};
+
+// Mark all as read
+window.markAllNotificationsAsRead = function() {
+    console.log('Marking ALL notifications as read');
+    
+    // Tandai semua notifikasi sebagai read
+    state.notifications.forEach(n => n.read = true);
+    
+    // Update semua UI
+    updateNotificationBadges();
+    updateNotificationsPanel();
+    
+    // Update halaman notifications jika ada
+    if (typeof window.loadNotifications === 'function') {
+        window.loadNotifications();
+    }
+    
+    // Tampilkan pesan sukses
+    showToast('Semua notifikasi telah ditandai dibaca');
+};
+
+// Simple toast function
+function showToast(message) {
+    // Cek apakah sudah ada toast container
+    let toastContainer = document.getElementById('toastContainer');
+    
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toastContainer';
+        toastContainer.style.cssText = `
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        `;
+        document.body.appendChild(toastContainer);
+    }
+    
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+        background: var(--primary);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        margin-top: 10px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        animation: slideIn 0.3s ease;
+        font-size: 14px;
+    `;
+    toast.textContent = message;
+    
+    toastContainer.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// ===============================
+// 🔊 SOUND & ANIMATION
+// ===============================
+function playNotificationSound() {
+    // CEK PENTING: Hanya mainkan suara jika ada notifikasi BELUM DIBACA
+    const unreadCount = state.notifications.filter(n => !n.read).length;
+    
+    if (unreadCount === 0) {
+        console.log('No unread notifications, sound not played');
+        return;
+    }
+    
+    const audio = document.getElementById("notificationSound");
+    if (!audio) return;
+    
+    // Cek apakah suara diaktifkan di settings
+    const soundEnabled = localStorage.getItem("wo_sound_enabled") !== "false";
+    if (!soundEnabled) {
+        console.log('Sound disabled in settings');
+        return;
+    }
+    
+    // Set volume dari settings
+    const volume = localStorage.getItem("wo_volume") || 80;
+    audio.volume = volume / 100;
+    
+    // Set sound file dari settings
+    const selectedSound = localStorage.getItem("wo_selected_sound") || "notification4";
+    let soundFile = 'sounds/notification4.wav';
+    switch(selectedSound) {
+        case 'notification1': soundFile = 'sounds/notification1.wav'; break;
+        case 'notification2': soundFile = 'sounds/notification2.wav'; break;
+        case 'notification3': soundFile = 'sounds/notification3.wav'; break;
+        case 'notification4': soundFile = 'sounds/notification4.wav'; break;
+    }
+    audio.src = soundFile;
+    
+    // Mainkan suara
+    audio.currentTime = 0;
+    audio.play().catch(err => {
+        console.log('Audio play failed:', err);
+    });
+    
+    console.log('🔔 Notification sound played');
+}
+
+function animateNotificationBell() {
+    const bell = document.getElementById("notificationIcon") || 
+                 document.getElementById("notificationBell");
+    if (!bell) return;
+
+    bell.classList.add("shake");
+    setTimeout(() => bell.classList.remove("shake"), 1000);
 }
 
 // ===============================
@@ -133,7 +381,9 @@ function updateDate() {
 // 🎧 EVENT LISTENERS
 // ===============================
 function setupEventListeners() {
-    const notificationIcon = document.getElementById('notificationIcon') || document.getElementById('notificationBell');
+    // Notification icon click
+    const notificationIcon = document.getElementById('notificationIcon') || 
+                            document.getElementById('notificationBell');
     const notificationsPanel = document.getElementById('notificationsPanel');
     
     if (notificationIcon && notificationsPanel) {
@@ -143,6 +393,20 @@ function setupEventListeners() {
         });
     }
 
+    // Mark all read button
+    const markAllRead = document.getElementById('markAllRead') || 
+                        document.getElementById('markPanelRead') ||
+                        document.getElementById('markAllReadBtn');
+    
+    if (markAllRead) {
+        markAllRead.addEventListener("click", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            markAllNotificationsAsRead();
+        });
+    }
+
+    // Click outside to close panel
     document.addEventListener("click", (e) => {
         if (notificationsPanel && 
             !notificationsPanel.contains(e.target) && 
@@ -200,29 +464,6 @@ function initDateTime() {
 }
 
 // ===============================
-// 🔊 SOUND & ANIMATION
-// ===============================
-function playNotificationSound() {
-    const audio = document.getElementById("notificationSound");
-    if (!audio) return;
-    
-    const soundEnabled = localStorage.getItem("wo_sound_enabled") !== "false";
-    if (!soundEnabled) return;
-    
-    audio.volume = (localStorage.getItem("wo_volume") || 80) / 100;
-    audio.currentTime = 0;
-    audio.play().catch(() => {});
-}
-
-function animateNotificationBell() {
-    const bell = document.getElementById("notificationBell") || document.getElementById("notificationIcon");
-    if (!bell) return;
-
-    bell.classList.add("shake");
-    setTimeout(() => bell.classList.remove("shake"), 1000);
-}
-
-// ===============================
 // 🛠 UTILITY FUNCTIONS
 // ===============================
 function formatDate(dateString) {
@@ -233,18 +474,26 @@ function formatDate(dateString) {
         return date.toLocaleDateString("id-ID", {
             year: "numeric",
             month: "2-digit",
-            day: "2-digit",
-            hour: "2-digit",
-            minute: "2-digit"
+            day: "2-digit"
         });
     } catch {
         return dateString;
     }
 }
 
-function showError(message) {
-    console.error(message);
-    // Bisa ditambahkan toast notification
+function formatTimeAgo(date) {
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+    
+    if (diffMins < 1) return 'Baru saja';
+    if (diffMins < 60) return `${diffMins} menit lalu`;
+    if (diffHours < 24) return `${diffHours} jam lalu`;
+    if (diffDays < 7) return `${diffDays} hari lalu`;
+    
+    return formatDate(date.toISOString());
 }
 
 // ===============================
@@ -252,6 +501,35 @@ function showError(message) {
 // ===============================
 document.addEventListener('DOMContentLoaded', initApp);
 
+// Tambahkan CSS animation untuk toast
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes slideOut {
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
+    }
+    
+    .shake {
+        animation: shake 0.5s ease;
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: rotate(0); }
+        20% { transform: rotate(15deg); }
+        40% { transform: rotate(-15deg); }
+        60% { transform: rotate(7deg); }
+        80% { transform: rotate(-7deg); }
+    }
+`;
+document.head.appendChild(style);
+
 // Expose functions globally
-window.fetchWorkOrdersForDepartment = fetchWorkOrdersForDepartment;
+window.fetchAllWorkOrders = fetchAllWorkOrders;
 window.formatDate = formatDate;
+window.markNotificationAsRead = markNotificationAsRead;
+window.markAllNotificationsAsRead = markAllNotificationsAsRead;

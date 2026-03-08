@@ -5,141 +5,395 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>In Progress - WO System</title>
     <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Top bar logo styles */
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .top-bar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-right: 15px;
+            border-right: 2px solid var(--primary-light);
+        }
+        
+        .top-bar-logo img {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        
+        .top-bar-logo img:hover {
+            transform: scale(1.05);
+        }
+        
+        .top-bar-logo span {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        
+        /* Kanban Board Styles */
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .kanban-column {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 500px;
+            border: 1px solid var(--primary-soft);
+        }
+        
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-light);
+        }
+        
+        .column-header h3 {
+            font-size: 18px;
+            color: var(--dark);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .column-header .count {
+            background: var(--primary);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .column-body {
+            min-height: 400px;
+        }
+        
+        .kanban-card {
+            background: white;
+            border-radius: 12px;
+            padding: 18px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--primary-soft);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            border-left: 4px solid transparent;
+        }
+        
+        .kanban-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(46,204,113,0.15);
+            border-color: var(--primary);
+        }
+        
+        .kanban-card.dept-recipient {
+            border-left-color: #f39c12;
+        }
+        
+        .kanban-card.execute {
+            border-left-color: #3498db;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .card-id {
+            font-size: 12px;
+            color: var(--gray-500);
+            font-weight: 500;
+            background: var(--gray-100);
+            padding: 3px 10px;
+            border-radius: 20px;
+        }
+        
+        .card-priority {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .priority-urgent {
+            background: #fde8e8;
+            color: #e74c3c;
+            border: 1px solid #fad1d1;
+        }
+        
+        .priority-routine {
+            background: #e8f5e9;
+            color: #27ae60;
+            border: 1px solid #a3e4b7;
+        }
+        
+        .priority-others {
+            background: #f8f9fa;
+            color: #7f8c8d;
+            border: 1px solid #bdc3c7;
+        }
+        
+        .card-title {
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 12px;
+            color: var(--dark);
+            line-height: 1.4;
+        }
+        
+        .card-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            color: var(--gray-600);
+        }
+        
+        .card-detail-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid var(--primary-soft);
+            font-size: 11px;
+            color: var(--gray-500);
+        }
+        
+        .card-assignee {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-badge-small {
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .status-dept-recipient {
+            background: #fff3d6;
+            color: #f39c12;
+        }
+        
+        .status-execute {
+            background: #e3f2fd;
+            color: #3498db;
+        }
+        
+        @media (max-width: 768px) {
+            .top-bar-logo {
+                padding-right: 10px;
+            }
+            
+            .top-bar-logo img {
+                height: 30px;
+            }
+            
+            .top-bar-logo span {
+                display: none;
+            }
+            
+            .kanban-board {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
-         <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <span class="logo-icon">📋</span>
-                <h2>WO<span>System</span></h2>
-            </div>
-        </div>
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="Logo.png" alt="logo">
+                </div>
             
-        <nav class="sidebar-nav">
-            <a href="index.html" class="nav-item">
-                <span class="nav-icon">📊</span>
-                <span class="nav-text">Dashboard</span>
-            </a>
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
 
-            <a href="work-orders.html" class="nav-item active">
-                <span class="nav-icon">📋</span>
-                <span class="nav-text">Work Orders</span>
-                <span class="nav-badge" id="woBadge"></span>
-            </a>
+                <a href="work-orders.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">Work Orders</span>
+                    <span class="nav-badge" id="woBadge"></span>
+                </a>
 
-            <a href="in-progress.html" class="nav-item">
-                <span class="nav-icon">⏳</span>
-                <span class="nav-text">In Progress</span>
-                <span class="nav-badge" id="progressBadge"></span>
-            </a>
+                <a href="in-progress.html" class="nav-item active">
+                    <span class="nav-icon">⏳</span>
+                    <span class="nav-text">In Progress</span>
+                    <span class="nav-badge" id="progressBadge"></span>
+                </a>
 
-            <a href="completed.html" class="nav-item">
-                <span class="nav-icon">✅</span>
-                <span class="nav-text">Completed</span>
-                <span class="nav-badge" id="completedBadge"></span>
-            </a>
+                <a href="completed.html" class="nav-item">
+                    <span class="nav-icon">✅</span>
+                    <span class="nav-text">Completed</span>
+                    <span class="nav-badge" id="completedBadge"></span>
+                </a>
 
-            <div class="nav-divider"></div>
+                <div class="nav-divider"></div>
 
-            <a href="notifications.html" class="nav-item">
-                <span class="nav-icon">🔔</span>
-                <span class="nav-text">Notifications</span>
-                <span class="nav-badge" id="notifBadge"></span>
-            </a>
+                <a href="notifications.html" class="nav-item">
+                    <span class="nav-icon">🔔</span>
+                    <span class="nav-text">Notifications</span>
+                    <span class="nav-badge" id="notifBadge"></span>
+                </a>
 
-            <a href="settings.html" class="nav-item">
-                <span class="nav-icon">⚙️</span>
-                <span class="nav-text">Settings</span>
-            </a>
-        </nav>
-    </aside>
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Settings</span>
+                </a>
+            </nav>
+        </aside>
 
         <!-- Main Content -->
         <main class="main-content">
             <header class="top-bar">
-                <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+                <div class="top-bar-left">
+                    
+                    <button id="sidebarToggle" class="sidebar-toggle">☰</button>
 
-                <div class="page-info">
-                    <h1 class="page-title">In Progress</h1>
-                    <div class="breadcrumb">
-                        <span>Work Orders</span> / <span class="current">In Progress</span>
+                    <div class="page-info">
+                        <h1 class="page-title">In Progress</h1>
+                        <div class="breadcrumb">
+                            <span class="current">In Progress</span>
+                        </div>
                     </div>
                 </div>
+                
                 <div class="top-actions">
-                    <!-- ... top actions ... -->
+                    <div class="search-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" placeholder="Cari work order..." class="search-input" id="searchInput">
+                    </div>
+                    <div class="action-group">
+                        <div class="notification-wrapper" id="notificationIcon">
+                            <span class="notification-icon">🔔</span>
+                            <span class="notification-badge" id="notifCount">0</span>
+                        </div>
+                        <div class="sound-control">
+                            <button class="sound-btn" id="soundToggle">🔊</button>
+                            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="80">
+                        </div>
+                    </div>
                 </div>
             </header>
 
             <!-- In Progress Content -->
             <div class="progress-container">
-                <!-- Kanban Board -->
-                <div class="kanban-board">
-                    <!-- To Do Column -->
-                    <div class="kanban-column">
-                        <div class="column-header">
-                            <h3>To Do</h3>
-                            <span class="count" id="todoCount">0</span>
-                        </div>
-                        <div class="column-body" id="todoList">
-                            <!-- Dynamic cards -->
+                <!-- Summary Cards -->
+                <div class="stats-grid" style="margin-bottom: 25px; grid-template-columns: repeat(2, 1fr);">
+                    <div class="stat-card">
+                        <div class="stat-icon">📦</div>
+                        <div class="stat-content">
+                            <span class="stat-label">Dept Recipient</span>
+                            <span class="stat-value" id="deptRecipientCount">0</span>
+                            <span class="stat-trend">Track Status: 2</span>
                         </div>
                     </div>
-
-                    <!-- In Progress Column -->
-                    <div class="kanban-column">
-                        <div class="column-header">
-                            <h3>In Progress</h3>
-                            <span class="count" id="progressCount">0</span>
-                        </div>
-                        <div class="column-body" id="progressList">
-                            <!-- Dynamic cards -->
-                        </div>
-                    </div>
-
-                    <!-- Review Column -->
-                    <div class="kanban-column">
-                        <div class="column-header">
-                            <h3>Review</h3>
-                            <span class="count" id="reviewCount">0</span>
-                        </div>
-                        <div class="column-body" id="reviewList">
-                            <!-- Dynamic cards -->
-                        </div>
-                    </div>
-
-                    <!-- Done Column -->
-                    <div class="kanban-column">
-                        <div class="column-header">
-                            <h3>Done</h3>
-                            <span class="count" id="doneCount">0</span>
-                        </div>
-                        <div class="column-body" id="doneList">
-                            <!-- Dynamic cards -->
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-content">
+                            <span class="stat-label">Execute</span>
+                            <span class="stat-value" id="executeCount">0</span>
+                            <span class="stat-trend">Track Status: 3</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Timeline View -->
-                <div class="timeline-section" style="background: white; padding: 20px; border-radius: 10px; margin-top: 20px;">
-                    <h3 style="margin-bottom: 15px;">Today's Schedule</h3>
-                    <div class="timeline-list" id="todaySchedule">
-                        <!-- Dynamic timeline items -->
+                <!-- Kanban Board -->
+                <div class="kanban-board">
+                    <!-- Dept Recipient Column (Track Status: 2) -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <h3>
+                                <span style="color: #f39c12;">📦</span>
+                                Dept Recipient
+                            </h3>
+                            <span class="count" id="deptRecipientColumnCount">0</span>
+                        </div>
+                        <div class="column-body" id="deptRecipientList">
+                            <!-- Dynamic cards will be inserted here -->
+                            <div style="text-align: center; padding: 40px; color: var(--gray-500);">
+                                <div style="font-size: 48px; margin-bottom: 10px;">📭</div>
+                                <div>Tidak ada work order</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Execute Column (Track Status: 3) -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <h3>
+                                <span style="color: #3498db;">⚡</span>
+                                Execute
+                            </h3>
+                            <span class="count" id="executeColumnCount">0</span>
+                        </div>
+                        <div class="column-body" id="executeList">
+                            <!-- Dynamic cards will be inserted here -->
+                            <div style="text-align: center; padding: 40px; color: var(--gray-500);">
+                                <div style="font-size: 48px; margin-bottom: 10px;">📭</div>
+                                <div>Tidak ada work order</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
+            <!-- Detail Card Container (for showing details when card clicked) -->
+            <div id="detailCardContainer" style="margin-top: 25px; display: none;"></div>
+
             <!-- Notifications Panel -->
             <div class="notifications-panel" id="notificationsPanel">
-                <!-- ... -->
+                <div class="panel-header">
+                    <h4>Notifikasi</h4>
+                    <button class="mark-read" id="markAllRead">Tandai dibaca</button>
+                </div>
+                <div class="panel-body" id="notificationsList">
+                    <!-- Notifications will be inserted here -->
+                </div>
             </div>
         </main>
     </div>
 
-    <audio id="notificationSound" src="/sounds/notification4.wav" preload="auto"></audio>
+    <audio id="notificationSound" src="sounds/notification4.wav" preload="auto"></audio>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/workorders.js"></script>
     <script src="js/inprogress.js"></script>
 </body>
 </html>

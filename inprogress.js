@@ -1,332 +1,326 @@
-// ================
-// IN PROGRESS PAGE
-// ================
+// ===============================
+// IN PROGRESS PAGE - MENGGUNAKAN TRACK_STATUS
+// ===============================
 
-document.addEventListener("DOMContentLoaded", async function () {
+// State management
+let selectedWOId = null;
 
-    // Jika halaman memiliki kanban
-    if (document.getElementById("todoList")) {
+// Mapping track_status untuk In Progress
+const TRACK_STATUS_IN_PROGRESS = {
+    deptRecipient: 2,  // Departemen Recipient
+    execute: 3         // Execute Departemen Recipient
+};
 
-        // Tunggu data dari main.js
-        const waitData = setInterval(() => {
+// Mapping untuk detail status
+const TRACK_STATUS_DETAIL = {
+    2: { name: 'Dept Recipient', class: 'status-dept-recipient', icon: '📦', color: '#f39c12' },
+    3: { name: 'Execute', class: 'status-execute', icon: '⚡', color: '#3498db' }
+};
 
-            if (typeof state !== "undefined" && state.workOrders && state.workOrders.length > 0) {
+// Priority mapping
+const PRIORITY_MAP = {
+    1: { name: 'Urgent', class: 'priority-urgent' },
+    2: { name: 'Routine', class: 'priority-routine' },
+    3: { name: 'Others', class: 'priority-others' }
+};
 
-                clearInterval(waitData);
-                initInProgress();
-
-            }
-
-        }, 300);
-
-    }
-
+document.addEventListener("DOMContentLoaded", function() {
+    console.log("In Progress page loaded");
+    
+    // Tunggu data dari main.js
+    checkData();
+    
+    // Setup event listeners
+    setupEventListeners();
 });
 
+function checkData() {
+    if (typeof state !== "undefined" && state.workOrders && state.workOrders.length > 0) {
+        console.log("Data ready, initializing in progress page...");
+        initInProgress();
+    } else {
+        console.log("Waiting for data...");
+        setTimeout(checkData, 500);
+    }
+}
 
-// =================
-// INIT PAGE
-// =================
+function setupEventListeners() {
+    // Search input
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', debounce(function() {
+            filterWorkOrders();
+        }, 500));
+    }
+}
 
 function initInProgress() {
-
-    // Jika data belum ada, tunggu
-    if (!state.workOrders || state.workOrders.length === 0) {
-
-        const waitData = setInterval(() => {
-
-            if (state.workOrders && state.workOrders.length > 0) {
-
-                clearInterval(waitData);
-
-                loadKanbanBoard();
-                loadTodaySchedule();
-
-            }
-
-        }, 500);
-
-        return;
-    }
-
+    console.log('In Progress page initialized with', state.workOrders.length, 'records');
+    
+    // Filter hanya yang track_status 2 dan 3 (In Progress)
+    const inProgressData = state.workOrders.filter(wo => 
+        Number(wo.track_status) === TRACK_STATUS_IN_PROGRESS.deptRecipient || 
+        Number(wo.track_status) === TRACK_STATUS_IN_PROGRESS.execute
+    );
+    
+    console.log('In Progress records:', inProgressData.length);
+    
+    loadStats();
     loadKanbanBoard();
-    loadTodaySchedule();
 }
 
+// ===============================
+// LOAD STATS
+// ===============================
+function loadStats() {
+    const deptRecipient = state.workOrders.filter(wo => 
+        Number(wo.track_status) === TRACK_STATUS_IN_PROGRESS.deptRecipient
+    ).length;
+    
+    const execute = state.workOrders.filter(wo => 
+        Number(wo.track_status) === TRACK_STATUS_IN_PROGRESS.execute
+    ).length;
 
-// =============
+    console.log('Stats - Dept Recipient:', deptRecipient, 'Execute:', execute);
+
+    setText('deptRecipientCount', deptRecipient);
+    setText('executeCount', execute);
+}
+
+// ===============================
 // LOAD KANBAN BOARD
-// =============
-
+// ===============================
 function loadKanbanBoard() {
-
-    if (!state.workOrders || state.workOrders.length === 0) {
-        console.warn("Data WO belum ada dari API");
-        return;
-    }
-
-    const workOrders = state.workOrders;
-
-    const todoList = workOrders.filter(wo => Number(wo.status) === 1);
-
-    const progressList = workOrders.filter(wo =>
-        Number(wo.status) === 2 && Number(wo.track_status) !== 3
+    // Filter data untuk masing-masing kolom
+    const deptRecipientList = state.workOrders.filter(wo => 
+        Number(wo.track_status) === TRACK_STATUS_IN_PROGRESS.deptRecipient
+    );
+    
+    const executeList = state.workOrders.filter(wo => 
+        Number(wo.track_status) === TRACK_STATUS_IN_PROGRESS.execute
     );
 
-    const reviewList = workOrders.filter(wo =>
-        Number(wo.status) === 2 && Number(wo.track_status) === 3
-    );
+    // Update column counts
+    setText('deptRecipientColumnCount', deptRecipientList.length);
+    setText('executeColumnCount', executeList.length);
 
-    const doneList = workOrders.filter(wo => Number(wo.status) === 3);
-
-
-    // Update counts
-    const todoCount = document.getElementById('todoCount');
-    const progressCount = document.getElementById('progressCount');
-    const reviewCount = document.getElementById('reviewCount');
-    const doneCount = document.getElementById('doneCount');
-
-    if (todoCount) todoCount.textContent = todoList.length;
-    if (progressCount) progressCount.textContent = progressList.length;
-    if (reviewCount) reviewCount.textContent = reviewList.length;
-    if (doneCount) doneCount.textContent = doneList.length;
-
-
-    // Load columns
-    loadKanbanColumn('todoList', todoList);
-    loadKanbanColumn('progressList', progressList);
-    loadKanbanColumn('reviewList', reviewList);
-    loadKanbanColumn('doneList', doneList);
-
-    makeCardsDraggable();
+    // Load cards ke masing-masing kolom
+    loadKanbanColumn('deptRecipientList', deptRecipientList, 'dept-recipient');
+    loadKanbanColumn('executeList', executeList, 'execute');
 }
 
-
 // ===============================
-// LOAD COLUMN
+// LOAD KANBAN COLUMN
 // ===============================
-
-function loadKanbanColumn(elementId, workOrders) {
-
+function loadKanbanColumn(elementId, workOrders, type) {
     const column = document.getElementById(elementId);
     if (!column) return;
 
+    if (workOrders.length === 0) {
+        column.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: var(--gray-500);">
+                <div style="font-size: 48px; margin-bottom: 10px;">📭</div>
+                <div>Tidak ada work order</div>
+            </div>
+        `;
+        return;
+    }
+
     column.innerHTML = workOrders.map(wo => `
-
-        <div class="kanban-card" draggable="true" data-id="${wo.id}" data-status="${wo.status}">
-
+        <div class="kanban-card ${type}" onclick="showDetail('${wo.id}')" data-id="${wo.id}">
             <div class="card-header">
-                <span class="card-id">${wo.id_wo}</span>
-                <span class="card-priority ${getPriorityClass(wo.priority)}"></span>
+                <span class="card-id">${wo.id_wo || '-'}</span>
+                <span class="card-priority ${getPriorityClass(wo.priority)}">
+                    ${getPriorityText(wo.priority)}
+                </span>
             </div>
-
+            
             <div class="card-title">
-                ${wo.job_name || "-"}
+                ${wo.job_name || 'Untitled'}
             </div>
-
+            
+            <div class="card-details">
+                <div class="card-detail-item">
+                    <span>👤</span>
+                    <span>${wo.name_request || 'Unknown'}</span>
+                </div>
+                <div class="card-detail-item">
+                    <span>🏢</span>
+                    <span>${wo.departemen || '-'}</span>
+                </div>
+                <div class="card-detail-item">
+                    <span>📍</span>
+                    <span>${wo.work_location || '-'}</span>
+                </div>
+            </div>
+            
             <div class="card-footer">
-
                 <span class="card-assignee">
-                    👤 ${wo.description_of_pic_name || "Unassigned"}
+                    <span>⏰</span>
+                    ${formatDisplayDate(wo.date_request)}
                 </span>
-
-                <span class="card-date">
-                    ${formatDate ? formatDate(wo.date_request) : wo.date_request}
+                <span class="status-badge-small ${type === 'dept-recipient' ? 'status-dept-recipient' : 'status-execute'}">
+                    ${type === 'dept-recipient' ? 'Dept Recipient' : 'Execute'}
                 </span>
-
             </div>
-
         </div>
-
-    `).join("");
-
+    `).join('');
 }
-
 
 // ===============================
-// PRIORITY CLASS
+// SHOW DETAIL (reuse dari workorders.js)
 // ===============================
-
-function getPriorityClass(priority) {
-
-    const classes = {
-        1: "high",
-        2: "medium",
-        3: "low"
-    };
-
-    return classes[priority] || "low";
-}
-
-
-// ===============================
-// DRAG SYSTEM
-// ===============================
-
-function makeCardsDraggable() {
-
-    const cards = document.querySelectorAll(".kanban-card");
-    const columns = document.querySelectorAll(".column-body");
-
-    cards.forEach(card => {
-
-        card.addEventListener("dragstart", handleDragStart);
-        card.addEventListener("dragend", handleDragEnd);
-
-    });
-
-    columns.forEach(column => {
-
-        column.addEventListener("dragover", handleDragOver);
-        column.addEventListener("drop", handleDrop);
-
-    });
-
-}
-
-
-function handleDragStart(e) {
-
-    e.dataTransfer.setData("text/plain", e.target.dataset.id);
-    e.target.classList.add("dragging");
-
-}
-
-function handleDragEnd(e) {
-
-    e.target.classList.remove("dragging");
-
-}
-
-function handleDragOver(e) {
-
-    e.preventDefault();
-
-}
-
-function handleDrop(e) {
-
-    e.preventDefault();
-
-    const id = e.dataTransfer.getData("text/plain");
-    const card = document.querySelector(`[data-id="${id}"]`);
-    const newColumn = e.target.closest(".column-body");
-
-    if (card && newColumn) {
-
-        newColumn.appendChild(card);
-        updateWorkOrderStatus(id, newColumn.id);
-
-    }
-
-}
-
-
-// ===============================
-// UPDATE STATUS
-// ===============================
-
-function updateWorkOrderStatus(id, columnId) {
-
+window.showDetail = function(id) {
+    console.log('Menampilkan detail untuk ID:', id);
+    
     const wo = state.workOrders.find(w => w.id == id);
-    if (!wo) return;
-
-    let newStatus;
-
-    switch (columnId) {
-
-        case "todoList":
-            newStatus = 1;
-            break;
-
-        case "progressList":
-            newStatus = 2;
-            wo.work_started = new Date().toISOString();
-            break;
-
-        case "reviewList":
-            newStatus = 2;
-            wo.track_status = 3;
-            break;
-
-        case "doneList":
-            newStatus = 3;
-            wo.work_completed = new Date().toISOString();
-            break;
-
+    if (!wo) {
+        alert('Data tidak ditemukan!');
+        return;
     }
-
-    if (newStatus) {
-
-        wo.status = newStatus;
-        wo.updated_at = new Date().toISOString();
-
-        if (typeof addCustomNotification !== "undefined") {
-
-            addCustomNotification(
-                "Status Updated",
-                `Work order ${wo.id_wo} moved`,
-                "🔄"
-            );
-
-        }
-
+    
+    selectedWOId = id;
+    
+    // Panggil fungsi showDetail dari workorders.js jika ada
+    if (typeof window.showWorkOrderDetail === 'function') {
+        window.showWorkOrderDetail(id);
+    } else {
+        // Fallback: buat detail card sederhana
+        showSimpleDetail(wo);
     }
+};
 
-}
-
-
-// ===============================
-// TODAY SCHEDULE
-// ===============================
-
-function loadTodaySchedule() {
-
-    const todaySchedule = document.getElementById("todaySchedule");
-    if (!todaySchedule) return;
-
-    const today = new Date().toDateString();
-
-    const todayWOs = state.workOrders.filter(wo => {
-
-        const woDate = new Date(wo.date_request).toDateString();
-        return woDate === today && Number(wo.status) !== 3;
-
-    });
-
-    todaySchedule.innerHTML = todayWOs.map(wo => `
-
-        <div class="timeline-item">
-
-            <div class="timeline-time">
-                ${formatTime(wo.date_request)}
+// Simple detail fallback
+function showSimpleDetail(wo) {
+    let container = document.getElementById('detailCardContainer');
+    if (!container) return;
+    
+    // Tentukan deskripsi yang akan ditampilkan
+    let displayDescription = wo.description_of_work_order;
+    if (!displayDescription || displayDescription === 'null' || displayDescription === '') {
+        displayDescription = wo.job_description || 'Tidak ada deskripsi';
+    }
+    
+    container.innerHTML = `
+        <div style="background: white; border-radius: 15px; padding: 25px; border: 2px solid #2ecc71; box-shadow: 0 5px 20px rgba(46,204,113,0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: #2c3e50; margin: 0;">Detail Work Order: ${wo.id_wo}</h3>
+                <button onclick="closeDetail()" style="background: #e74c3c; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer;">✕</button>
             </div>
-
-            <div class="timeline-content">
-                <h4>${wo.job_name}</h4>
-                <p>${wo.departemen || "-"} - ${wo.work_location || "-"}</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div>
+                    <p><strong>Job Name:</strong> ${wo.job_name || '-'}</p>
+                    <p><strong>Location:</strong> ${wo.work_location || '-'}</p>
+                    <p><strong>Asset:</strong> ${wo.asset || '-'}</p>
+                    <p><strong>Priority:</strong> ${getPriorityText(wo.priority)}</p>
+                </div>
+                <div>
+                    <p><strong>Department:</strong> ${wo.departemen || '-'}</p>
+                    <p><strong>Requestor:</strong> ${wo.name_request || '-'}</p>
+                    <p><strong>Status:</strong> ${Number(wo.track_status) === 2 ? 'Dept Recipient' : 'Execute'}</p>
+                    <p><strong>Date:</strong> ${formatDisplayDate(wo.date_request)}</p>
+                </div>
+                <div style="grid-column: span 2;">
+                    <p><strong>Deskripsi:</strong></p>
+                    <p style="background: #f8f9fa; padding: 15px; border-radius: 8px;">${displayDescription}</p>
+                </div>
             </div>
-
         </div>
-
-    `).join("");
-
+    `;
+    container.style.display = 'block';
 }
 
+window.closeDetail = function() {
+    const container = document.getElementById('detailCardContainer');
+    if (container) {
+        container.style.display = 'none';
+        container.innerHTML = '';
+    }
+    selectedWOId = null;
+};
 
-// ===============================
-// FORMAT TIME
-// ===============================
+function filterWorkOrders() {
+    // Implement search filter
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+    
+    const keyword = searchInput.value.toLowerCase();
+    
+    // Filter cards berdasarkan keyword
+    filterKanbanCards(keyword);
+}
 
-function formatTime(dateString) {
-
-    if (!dateString) return "-";
-
-    const date = new Date(dateString);
-
-    return date.toLocaleTimeString("id-ID", {
-        hour: "2-digit",
-        minute: "2-digit"
+function filterKanbanCards(keyword) {
+    const cards = document.querySelectorAll('.kanban-card');
+    
+    cards.forEach(card => {
+        const title = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
+        const id = card.querySelector('.card-id')?.textContent.toLowerCase() || '';
+        const dept = card.querySelector('.card-details')?.textContent.toLowerCase() || '';
+        
+        if (title.includes(keyword) || id.includes(keyword) || dept.includes(keyword)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
     });
+}
 
+// ===============================
+// HELPER FUNCTIONS
+// ===============================
+function getPriorityClass(priority) {
+    const priorityNum = Number(priority);
+    switch(priorityNum) {
+        case 1: return 'priority-urgent';
+        case 2: return 'priority-routine';
+        case 3: return 'priority-others';
+        default: return 'priority-others';
+    }
+}
+
+function getPriorityText(priority) {
+    const priorityNum = Number(priority);
+    switch(priorityNum) {
+        case 1: return 'Urgent';
+        case 2: return 'Routine';
+        case 3: return 'Others';
+        default: return '-';
+    }
+}
+
+function formatDisplayDate(dateString) {
+    if (!dateString) return '-';
+    try {
+        let datePart = dateString;
+        if (dateString.includes(' ')) {
+            datePart = dateString.split(' ')[0];
+        }
+        
+        const [year, month, day] = datePart.split('-');
+        if (year && month && day) {
+            return `${day}/${month}/${year}`;
+        }
+        return dateString;
+    } catch {
+        return dateString;
+    }
+}
+
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value;
+}
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
 }

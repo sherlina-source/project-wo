@@ -1,166 +1,239 @@
 // ===============================
-// INIT COMPLETED PAGE
+// COMPLETED PAGE - VERSI SEDERHANA
 // ===============================
-document.addEventListener("DOMContentLoaded", () => {
 
-    const waitData = setInterval(() => {
+// State management
+let selectedDate = '';
 
-        if (typeof state !== "undefined" && state.workOrders && state.workOrders.length > 0) {
+// Mapping track_status untuk Completed
+const TRACK_STATUS_COMPLETED = {
+    checkedRecipient: 4,
+    checkedRequest: 5
+};
 
-            clearInterval(waitData);
-            initCompleted();
-
-        }
-
-    }, 300);
-
+document.addEventListener("DOMContentLoaded", function() {
+    console.log("Completed page loaded");
+    
+    // Tunggu data dari main.js
+    checkData();
+    
+    // Setup search
+    setupSearch();
 });
 
+function checkData() {
+    if (typeof state !== "undefined" && state.workOrders && state.workOrders.length > 0) {
+        console.log("Data ready, initializing completed page...");
+        initCompleted();
+    } else {
+        console.log("Waiting for data...");
+        setTimeout(checkData, 500);
+    }
+}
 
-// ===============================
-// COMPLETED WORK ORDERS
-// ===============================
+function setupSearch() {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            loadCompletedList();
+        });
+    }
+}
+
 function initCompleted() {
-    loadSummaryStats();
+    console.log('Completed page initialized');
+    loadStats();
     loadCompletedList();
-    loadCompletionChart();
 }
-
-function loadSummaryStats() {
-
-    if (!state.workOrders) return;
-
-    const completed = state.workOrders.filter(wo => Number(wo.status) === 3);
-    
-    // Completed this month
-    const thisMonth = new Date().getMonth();
-
-    const completedThisMonth = completed.filter(wo => {
-
-        const completedDate = new Date(wo.work_completed || wo.updated_at);
-        return completedDate.getMonth() === thisMonth;
-
-    }).length;
-    
-    const completedMonth = document.getElementById('completedMonth');
-    if (completedMonth) completedMonth.textContent = completedThisMonth;
-    
-    // Average completion time
-    const completionTimes = completed.map(wo => {
-
-        const start = new Date(wo.date_request);
-        const end = new Date(wo.work_completed || wo.updated_at);
-
-        return (end - start) / (1000 * 60 * 60 * 24);
-
-    });
-    
-    const avgTime = completionTimes.length > 0 
-        ? (completionTimes.reduce((a, b) => a + b, 0) / completionTimes.length).toFixed(1)
-        : 0;
-    
-    const avgTimeEl = document.getElementById('avgTime');
-    if (avgTimeEl) avgTimeEl.textContent = `${avgTime} days`;
-    
-    // Satisfaction rate (demo)
-    const satisfaction = document.getElementById('satisfaction');
-    if (satisfaction) satisfaction.textContent = '96%';
-}
-
 
 // ===============================
-// COMPLETED LIST
+// LOAD STATS
+// ===============================
+function loadStats() {
+    const checkedRecipient = state.workOrders.filter(wo => 
+        Number(wo.track_status) === TRACK_STATUS_COMPLETED.checkedRecipient
+    ).length;
+    
+    const checkedRequest = state.workOrders.filter(wo => 
+        Number(wo.track_status) === TRACK_STATUS_COMPLETED.checkedRequest
+    ).length;
+
+    document.getElementById('checkedRecipientCount').textContent = checkedRecipient;
+    document.getElementById('checkedRequestCount').textContent = checkedRequest;
+}
+
+// ===============================
+// LOAD COMPLETED LIST
 // ===============================
 function loadCompletedList() {
+    const container = document.getElementById('completedItems');
+    if (!container) return;
 
-    if (!state.workOrders) return;
+    // Filter completed (track_status 4 dan 5)
+    let completedData = state.workOrders.filter(wo => 
+        Number(wo.track_status) === TRACK_STATUS_COMPLETED.checkedRecipient || 
+        Number(wo.track_status) === TRACK_STATUS_COMPLETED.checkedRequest
+    );
+    
+    // Filter by search
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput && searchInput.value) {
+        const keyword = searchInput.value.toLowerCase();
+        completedData = completedData.filter(wo => 
+            (wo.id_wo || '').toLowerCase().includes(keyword) ||
+            (wo.job_name || '').toLowerCase().includes(keyword) ||
+            (wo.departemen || '').toLowerCase().includes(keyword) ||
+            (wo.name_request || '').toLowerCase().includes(keyword)
+        );
+    }
 
-    const completed = state.workOrders.filter(wo => Number(wo.status) === 3);
-    const list = document.getElementById('completedItems');
-    
-    if (!list) return;
-    
-    list.innerHTML = completed.map(wo => `
-        <div class="completed-item">
+    if (completedData.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px; background: white; border-radius: 12px;">
+                <div style="font-size: 48px; margin-bottom: 10px;">✅</div>
+                <div style="color: var(--gray-600);">Tidak ada data completed</div>
+            </div>
+        `;
+        return;
+    }
+
+    // Sort by completed date (newest first)
+    completedData.sort((a, b) => {
+        const dateA = new Date(a.work_completed || a.updated_at || 0);
+        const dateB = new Date(b.work_completed || b.updated_at || 0);
+        return dateB - dateA;
+    });
+
+    container.innerHTML = completedData.map(wo => `
+        <div class="completed-item" onclick="showDetail('${wo.id}')">
             <div class="completed-icon">✅</div>
             <div class="completed-details">
-                <h4>${wo.job_name}</h4>
+                <h4>${wo.job_name || 'Untitled'}</h4>
                 <div class="completed-meta">
-                    <span>${wo.id_wo}</span>
-                    <span>${wo.departemen}</span>
-                    <span>Completed: ${formatDate(wo.work_completed || wo.updated_at)}</span>
+                    <span>📋 ${wo.id_wo || '-'}</span>
+                    <span>🏢 ${wo.departemen || '-'}</span>
+                    <span>👤 ${wo.name_request || '-'}</span>
+                    <span>📅 ${formatDate(wo.work_completed || wo.updated_at)}</span>
                 </div>
-            </div>
-            <div class="completed-actions">
-                <button class="action-btn" onclick="viewWO(${wo.id})">👁️</button>
-                <button class="action-btn" onclick="exportWO(${wo.id})">📊</button>
+                <div style="margin-top: 8px; display: flex; gap: 8px;">
+                    ${getStatusBadge(wo.track_status)}
+                    ${getPriorityBadge(wo.priority)}
+                </div>
             </div>
         </div>
     `).join('');
 }
 
-
 // ===============================
-// COMPLETION CHART
+// BADGE FUNCTIONS
 // ===============================
-function loadCompletionChart() {
-
-    const ctx = document.getElementById('completionChart');
-    if (!ctx || !state.workOrders) return;
-    
-    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const completedData = new Array(12).fill(0);
-    
-    state.workOrders.forEach(wo => {
-
-        if (Number(wo.status) === 3) {
-
-            const month = new Date(wo.work_completed || wo.updated_at).getMonth();
-            completedData[month]++;
-
-        }
-
-    });
-    
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: months,
-            datasets: [{
-                label: 'Completed Work Orders',
-                data: completedData,
-                backgroundColor: '#2ecc71',
-                borderRadius: 5
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        display: true,
-                        color: 'rgba(0,0,0,0.1)'
-                    }
-                }
-            }
-        }
-    });
-
+function getStatusBadge(trackStatus) {
+    const statusNum = Number(trackStatus);
+    if (statusNum === 4) {
+        return '<span class="badge badge-green">Checked Recipient</span>';
+    } else if (statusNum === 5) {
+        return '<span class="badge badge-green">Checked Request</span>';
+    }
+    return '';
 }
 
+function getPriorityBadge(priority) {
+    const priorityNum = Number(priority);
+    switch(priorityNum) {
+        case 1: return '<span class="badge badge-red">Urgent</span>';
+        case 2: return '<span class="badge badge-green">Routine</span>';
+        case 3: return '<span class="badge badge-gray">Others</span>';
+        default: return '';
+    }
+}
 
 // ===============================
-// EXPORT FUNCTION
+// DETAIL MODAL
 // ===============================
-window.exportWO = function(id) {
-
-    const wo = state.workOrders.find(w => w.id === id);
+window.showDetail = function(id) {
+    const wo = state.workOrders.find(w => w.id == id);
     if (!wo) return;
+    
+    const modal = document.getElementById('detailModal');
+    const content = document.getElementById('modalContent');
+    
+    // Tentukan deskripsi
+    let description = wo.description_of_work_order;
+    if (!description || description === 'null') {
+        description = wo.job_description || 'Tidak ada deskripsi';
+    }
+    
+    // Tentukan status text
+    let statusText = '';
+    if (Number(wo.track_status) === 4) statusText = 'Checked Recipient';
+    else if (Number(wo.track_status) === 5) statusText = 'Checked Request';
+    
+    // Tentukan priority text
+    let priorityText = '';
+    switch(Number(wo.priority)) {
+        case 1: priorityText = 'Urgent'; break;
+        case 2: priorityText = 'Routine'; break;
+        case 3: priorityText = 'Others'; break;
+        default: priorityText = '-';
+    }
+    
+    content.innerHTML = `
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                <p style="margin: 5px 0;"><strong>ID WO:</strong> ${wo.id_wo || '-'}</p>
+                <p style="margin: 5px 0;"><strong>Job Name:</strong> ${wo.job_name || '-'}</p>
+                <p style="margin: 5px 0;"><strong>Department:</strong> ${wo.departemen || '-'}</p>
+                <p style="margin: 5px 0;"><strong>Requestor:</strong> ${wo.name_request || '-'}</p>
+                <p style="margin: 5px 0;"><strong>Tanggal Request:</strong> ${formatDate(wo.date_request)}</p>
+                <p style="margin: 5px 0;"><strong>Tanggal Selesai:</strong> ${formatDate(wo.work_completed || wo.updated_at)}</p>
+                <p style="margin: 5px 0;"><strong>Status:</strong> ${statusText}</p>
+                <p style="margin: 5px 0;"><strong>Priority:</strong> ${priorityText}</p>
+                <p style="margin: 5px 0;"><strong>Lokasi:</strong> ${wo.work_location || '-'}</p>
+                <p style="margin: 5px 0;"><strong>Asset:</strong> ${wo.asset || '-'}</p>
+            </div>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
+                <p style="margin: 0 0 5px 0;"><strong>Deskripsi:</strong></p>
+                <p style="margin: 0; color: var(--dark);">${description}</p>
+            </div>
+            ${wo.job_image ? `
+                <a href="${wo.job_image}" target="_blank" style="display: inline-block; background: var(--primary); color: white; text-decoration: none; padding: 10px; border-radius: 8px; text-align: center;">
+                    Lihat Gambar
+                </a>
+            ` : ''}
+        </div>
+    `;
+    
+    modal.style.display = 'flex';
+};
 
-    alert(`Exporting work order: ${wo.id_wo}`);
+window.closeDetailModal = function() {
+    document.getElementById('detailModal').style.display = 'none';
+};
 
+// ===============================
+// HELPER FUNCTIONS
+// ===============================
+function formatDate(dateString) {
+    if (!dateString) return '-';
+    try {
+        let datePart = dateString;
+        if (dateString.includes(' ')) {
+            datePart = dateString.split(' ')[0];
+        }
+        const [year, month, day] = datePart.split('-');
+        if (year && month && day) {
+            return `${day}/${month}/${year}`;
+        }
+        return dateString;
+    } catch {
+        return dateString;
+    }
+}
+
+// Click outside modal to close
+window.onclick = function(event) {
+    const modal = document.getElementById('detailModal');
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
 };

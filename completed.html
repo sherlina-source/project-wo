@@ -5,127 +5,333 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Completed - WO System</title>
     <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Top bar logo styles */
+        .top-bar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .top-bar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-right: 15px;
+            border-right: 2px solid var(--primary-light);
+        }
+        
+        .top-bar-logo img {
+            height: 40px;
+            width: auto;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+        
+        .top-bar-logo img:hover {
+            transform: scale(1.05);
+        }
+        
+        .top-bar-logo span {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--primary-dark);
+            background: var(--primary-soft);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        
+        /* Completed Page Styles - Sederhana */
+        .completed-container {
+            padding: 20px 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border: 1px solid var(--primary-soft);
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-soft);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--primary-dark);
+        }
+        
+        .stat-content {
+            flex: 1;
+        }
+        
+        .stat-label {
+            font-size: 13px;
+            color: var(--gray-600);
+            display: block;
+            margin-bottom: 3px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+            display: block;
+        }
+        
+        .completed-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .completed-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid var(--primary-soft);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .completed-item:hover {
+            background: var(--primary-soft);
+            border-color: var(--primary);
+        }
+        
+        .completed-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--primary-soft);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: var(--primary-dark);
+        }
+        
+        .completed-details {
+            flex: 1;
+        }
+        
+        .completed-details h4 {
+            font-size: 15px;
+            margin-bottom: 5px;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        .completed-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: var(--gray-600);
+            flex-wrap: wrap;
+        }
+        
+        .completed-meta span {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .badge {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .badge-green {
+            background: #e8f5e9;
+            color: #27ae60;
+            border: 1px solid #a3e4b7;
+        }
+        
+        .badge-red {
+            background: #fde8e8;
+            color: #e74c3c;
+            border: 1px solid #fad1d1;
+        }
+        
+        .badge-yellow {
+            background: #fff3d6;
+            color: #f39c12;
+            border: 1px solid #ffebc2;
+        }
+        
+        .badge-gray {
+            background: #f8f9fa;
+            color: #7f8c8d;
+            border: 1px solid #bdc3c7;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .completed-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .completed-meta {
+                justify-content: center;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
-         <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="logo">
-                <span class="logo-icon">📋</span>
-                <h2>WO<span>System</span></h2>
-            </div>
-        </div>
-        
-        <nav class="sidebar-nav">
-            <a href="index.html" class="nav-item">
-                <span class="nav-icon">📊</span>
-                <span class="nav-text">Dashboard</span>
-            </a>
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="Logo.png" alt="logo">
+                </div>
+            
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
 
-            <a href="work-orders.html" class="nav-item active">
-                <span class="nav-icon">📋</span>
-                <span class="nav-text">Work Orders</span>
-                <span class="nav-badge" id="woBadge"></span>
-            </a>
+                <a href="work-orders.html" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">Work Orders</span>
+                    <span class="nav-badge" id="woBadge"></span>
+                </a>
 
-            <a href="in-progress.html" class="nav-item">
-                <span class="nav-icon">⏳</span>
-                <span class="nav-text">In Progress</span>
-                <span class="nav-badge" id="progressBadge"></span>
-            </a>
+                <a href="in-progress.html" class="nav-item">
+                    <span class="nav-icon">⏳</span>
+                    <span class="nav-text">In Progress</span>
+                    <span class="nav-badge" id="progressBadge"></span>
+                </a>
 
-            <a href="completed.html" class="nav-item">
-                <span class="nav-icon">✅</span>
-                <span class="nav-text">Completed</span>
-                <span class="nav-badge" id="completedBadge"></span>
-            </a>
+                <a href="completed.html" class="nav-item active">
+                    <span class="nav-icon">✅</span>
+                    <span class="nav-text">Completed</span>
+                    <span class="nav-badge" id="completedBadge"></span>
+                </a>
 
-            <div class="nav-divider"></div>
+                <div class="nav-divider"></div>
 
-            <a href="notifications.html" class="nav-item">
-                <span class="nav-icon">🔔</span>
-                <span class="nav-text">Notifications</span>
-                <span class="nav-badge" id="notifBadge"></span>
-            </a>
+                <a href="notifications.html" class="nav-item">
+                    <span class="nav-icon">🔔</span>
+                    <span class="nav-text">Notifications</span>
+                    <span class="nav-badge" id="notifBadge"></span>
+                </a>
 
-            <a href="settings.html" class="nav-item">
-                <span class="nav-icon">⚙️</span>
-                <span class="nav-text">Settings</span>
-            </a>
-        </nav>
-    </aside>
-        
+                <a href="settings.html" class="nav-item">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Settings</span>
+                </a>
+            </nav>
+        </aside>
+
         <!-- Main Content -->
         <main class="main-content">
             <header class="top-bar">
-                <button id="sidebarToggle" class="sidebar-toggle">☰</button>
+                <div class="top-bar-left">
+                    
+                    <button id="sidebarToggle" class="sidebar-toggle">☰</button>
 
-                <div class="page-info">
-                    <h1 class="page-title">Completed Work Orders</h1>
-                    <div class="breadcrumb">
-                        <span>Work Orders</span> / <span class="current">Completed</span>
+                    <div class="page-info">
+                        <h1 class="page-title">Completed</h1>
+                        <div class="breadcrumb">
+                            <span class="current">Completed</span>
+                        </div>
                     </div>
                 </div>
+                
                 <div class="top-actions">
-                    <!-- ... -->
+                    <div class="search-wrapper">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" placeholder="Cari work order..." class="search-input" id="searchInput">
+                    </div>
+                    <div class="action-group">
+                        <div class="notification-wrapper" id="notificationIcon">
+                            <span class="notification-icon">🔔</span>
+                            <span class="notification-badge" id="notifCount">0</span>
+                        </div>
+                    </div>
                 </div>
             </header>
 
-            <!-- Completed Content -->
+            <!-- Completed Content - Sederhana -->
             <div class="completed-container">
-                <!-- Summary Cards -->
-                <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
+                <!-- Summary Cards (Penting) -->
+                <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon">✅</div>
                         <div class="stat-content">
-                            <span class="stat-label">Completed This Month</span>
-                            <span class="stat-value" id="completedMonth">0</span>
+                            <span class="stat-label">Checked Recipient</span>
+                            <span class="stat-value" id="checkedRecipientCount">0</span>
                         </div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-icon">✓</div>
                         <div class="stat-content">
-                            <span class="stat-label">Avg. Completion Time</span>
-                            <span class="stat-value" id="avgTime">0 days</span>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">📊</div>
-                        <div class="stat-content">
-                            <span class="stat-label">Satisfaction Rate</span>
-                            <span class="stat-value" id="satisfaction">96%</span>
+                            <span class="stat-label">Checked Request</span>
+                            <span class="stat-value" id="checkedRequestCount">0</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Completed List -->
-                <div class="workorders-container" style="margin-top: 20px;">
-                    <div class="list-header" style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                        <h3>Completed Work Orders</h3>
-                        <select class="form-input" style="width: auto;" id="timeFilter">
-                            <option>This Week</option>
-                            <option>This Month</option>
-                            <option>This Year</option>
-                            <option>All Time</option>
-                        </select>
-                    </div>
-                    
-                    <div class="completed-items" id="completedItems">
-                        <!-- Dynamic completed items -->
+                <!-- Completed Items List (Penting) -->
+                <div class="completed-items" id="completedItems">
+                    <!-- Dynamic completed items will be inserted here -->
+                    <div style="text-align: center; padding: 40px; background: white; border-radius: 12px;">
+                        <div style="font-size: 48px; margin-bottom: 10px;">✅</div>
+                        <div style="color: var(--gray-600);">Memuat data...</div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Performance Chart -->
-                <div class="chart-card" style="background: white; padding: 20px; border-radius: 10px; margin-top: 20px;">
-                    <h3 style="margin-bottom: 15px;">Completion Trends</h3>
-                    <canvas id="completionChart" style="height: 300px;"></canvas>
+            <!-- Detail Modal Sederhana -->
+            <div id="detailModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+                <div style="background: white; border-radius: 15px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; padding: 25px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="margin: 0; color: var(--dark);">Detail Work Order</h3>
+                        <button onclick="closeDetailModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--gray-500);">✕</button>
+                    </div>
+                    <div id="modalContent">
+                        <!-- Content will be filled dynamically -->
+                    </div>
                 </div>
             </div>
 
             <!-- Notifications Panel -->
             <div class="notifications-panel" id="notificationsPanel">
-                <!-- ... -->
+                <div class="panel-header">
+                    <h4>Notifikasi</h4>
+                    <button class="mark-read" id="markAllRead">Tandai dibaca</button>
+                </div>
+                <div class="panel-body" id="notificationsList">
+                    <!-- Notifications will be inserted here -->
+                </div>
             </div>
         </main>
     </div>
