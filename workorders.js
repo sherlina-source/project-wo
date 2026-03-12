@@ -21,7 +21,7 @@ const TRACK_STATUS_DETAIL = {
     0: { name: 'Draft', class: 'status-draft', group: 'pending' },
     1: { name: 'Dept Request', class: 'status-dept-request', group: 'pending' },
     2: { name: 'Dept Recipient', class: 'status-dept-recipient', group: 'progress' },
-    3: { name: 'Execute', class: 'status-execute', group: 'progress' },
+    3: { name: 'Execute Recipient', class: 'status-execute', group: 'progress' },
     4: { name: 'Checked Recipient', class: 'status-checked-recipient', group: 'completed' },
     5: { name: 'Checked Request', class: 'status-checked-request', group: 'completed' }
 };

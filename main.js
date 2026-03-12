@@ -467,16 +467,41 @@ function initDateTime() {
 // 🛠 UTILITY FUNCTIONS
 // ===============================
 function formatDate(dateString) {
-    if (!dateString) return "-";
+    if (!dateString) return '-';
+    
     try {
-        const date = new Date(dateString.replace(' ', 'T'));
-        if (isNaN(date)) return dateString;
-        return date.toLocaleDateString("id-ID", {
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit"
-        });
-    } catch {
+        console.log('Formatting date:', dateString); 
+        let cleanDate = dateString;
+        if (dateString.includes(' ')) {
+            cleanDate = dateString.split(' ')[0];
+        }
+        
+        if (cleanDate.includes('T')) {
+            cleanDate = cleanDate.split('T')[0];
+        }
+        
+        const parts = cleanDate.split('-');
+        if (parts.length === 3) {
+            const [year, month, day] = parts;
+            
+            if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
+                return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
+            }
+        }
+        
+        const date = new Date(dateString);
+        if (!isNaN(date.getTime())) {
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+        
+        console.warn('Could not parse date:', dateString);
+        return dateString;
+        
+    } catch (error) {
+        console.error('Error in formatDate:', error);
         return dateString;
     }
 }
