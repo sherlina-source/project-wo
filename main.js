@@ -61,11 +61,12 @@ async function initApp() {
         state.workOrders = data;
         
         // Inisialisasi Set dengan ID work order yang ADA
-        // TAPI JANGAN buat notifikasi untuk data lama
         state.knownWOIds = new Set(data.map(wo => wo.id));
         state.lastWOCount = data.length;
         
-        // KOSONGKAN notifikasi di awal - tidak perlu notifikasi untuk data lama
+        // Generate notifikasi awal (SEMUA READ = TRUE)
+        generateInitialNotifications(data);
+    } else {
         state.notifications = [];
     }
 
@@ -98,7 +99,7 @@ async function checkNewWorkOrders() {
         // Tambahkan ID baru ke Set
         newWO.forEach(wo => state.knownWOIds.add(wo.id));
         
-        // Buat notifikasi HANYA untuk work order BARU
+        // Buat notifikasi HANYA untuk work order BARU (READ = FALSE)
         newWO.forEach(wo => {
             const newNotif = {
                 id: Date.now() + wo.id,
@@ -106,19 +107,18 @@ async function checkNewWorkOrders() {
                 message: `${wo.id_wo} - ${wo.job_name || 'New work order'}`,
                 time: "Baru saja",
                 timestamp: new Date().toISOString(),
-                read: false,
+                read: false, // ✅ NOTIF BARU = BELUM DIBACA
+                icon: getNotificationIcon(wo),
                 type: 'work-order',
-                icon: '📋',
                 workOrderId: wo.id
             };
             
-            // Tambahkan ke awal array
             state.notifications.unshift(newNotif);
         });
         
-        // Batasi jumlah notifikasi (max 20)
-        if (state.notifications.length > 20) {
-            state.notifications = state.notifications.slice(0, 20);
+        // Batasi jumlah notifikasi (max 50)
+        if (state.notifications.length > 50) {
+            state.notifications = state.notifications.slice(0, 50);
         }
         
         // Update UI
@@ -131,6 +131,50 @@ async function checkNewWorkOrders() {
 
     state.lastWOCount = newData.length;
     state.workOrders = newData;
+}
+
+// ===============================
+// 🔔 GENERATE INITIAL NOTIFICATIONS - SEMUA READ = TRUE
+// ===============================
+function generateInitialNotifications(workOrders) {
+    if (!workOrders || workOrders.length === 0) {
+        state.notifications = [];
+        return;
+    }
+    
+    // Ambil 10 work order terbaru untuk notifikasi awal
+    const recent = [...workOrders]
+        .sort((a, b) => {
+            const dateA = new Date(a.created_at || a.date_request || 0);
+            const dateB = new Date(b.created_at || b.date_request || 0);
+            return dateB - dateA;
+        })
+        .slice(0, 10);
+    
+    // Buat notifikasi dengan status READ = TRUE (badge TIDAK muncul)
+    state.notifications = recent.map((wo, index) => ({
+        id: Date.now() - index,
+        title: "Work Order",
+        message: `${wo.id_wo || 'WO'} - ${wo.job_name || 'Work order'}`,
+        time: formatTimeAgo(new Date(wo.created_at || wo.date_request || Date.now())),
+        timestamp: wo.created_at || wo.date_request || new Date().toISOString(),
+        read: true, // ✅ READ = TRUE - BADGE TIDAK MUNCUL
+        icon: getNotificationIcon(wo),
+        type: 'work-order',
+        workOrderId: wo.id
+    }));
+    
+    console.log(`Generated ${state.notifications.length} initial notifications (all marked as read)`);
+}
+
+// ===============================
+// 🔔 GET NOTIFICATION ICON
+// ===============================
+function getNotificationIcon(wo) {
+    const status = Number(wo.track_status || wo.status);
+    if (status === 2 || status === 3) return '⏳';
+    if (status === 4 || status === 5) return '✅';
+    return '📋';
 }
 
 // ===============================
@@ -149,33 +193,37 @@ function updateNotifications() {
     }
 }
 
-// Update semua badge notifikasi di seluruh halaman
+// ===============================
+// 🔔 UPDATE NOTIFICATION BADGES - HANYA MUNCUL JIKA ADA UNREAD
+// ===============================
 function updateNotificationBadges() {
+    // Hitung notifikasi yang BELUM DIBACA
     const unreadCount = state.notifications.filter(n => !n.read).length;
     
     console.log(`Updating badges - Unread count: ${unreadCount}`);
     
-    // Daftar semua ID badge yang mungkin ada di berbagai halaman
+    // Daftar semua ID badge
     const badgeIds = [
         'notifCount',           // Dashboard
-        'notificationBadge',     // Work Orders
+        'notificationBadge',    // Top bar
         'notifBadge',           // Sidebar badge
         'woBadge',              // Work Orders badge
         'progressBadge',        // In Progress badge
         'completedBadge'        // Completed badge
     ];
     
+    // Update setiap badge
     badgeIds.forEach(id => {
         const badge = document.getElementById(id);
         if (badge) {
             if (unreadCount > 0) {
-                // Jika ada notifikasi, tampilkan badge dengan jumlah
+                // Jika ada notifikasi belum dibaca, TAMPILKAN badge
                 badge.textContent = unreadCount;
                 badge.style.display = 'inline-block';
                 badge.style.visibility = 'visible';
                 badge.style.opacity = '1';
             } else {
-                // Jika tidak ada notifikasi, sembunyikan badge
+                // Jika tidak ada notifikasi, SEMBUNYIKAN badge
                 badge.style.display = 'none';
                 badge.style.visibility = 'hidden';
                 badge.style.opacity = '0';
@@ -183,9 +231,8 @@ function updateNotificationBadges() {
         }
     });
     
-    // Update badge di sidebar nav items (jika menggunakan class)
-    const navBadges = document.querySelectorAll('.nav-badge');
-    navBadges.forEach(badge => {
+    // Update badge di sidebar nav items
+    document.querySelectorAll('.nav-badge').forEach(badge => {
         if (unreadCount > 0) {
             badge.textContent = unreadCount;
             badge.style.display = 'inline-block';
@@ -195,29 +242,32 @@ function updateNotificationBadges() {
     });
 }
 
-// Update panel notifikasi (floating panel)
+// ===============================
+// 🔔 UPDATE NOTIFICATIONS PANEL (FLOATING PANEL)
+// ===============================
 function updateNotificationsPanel() {
     const panel = document.getElementById('notificationsList') || 
                   document.getElementById('panelNotificationList');
     if (!panel) return;
     
-    // Ambil 5 notifikasi TERBARU
-    const recentNotifs = [...state.notifications]
+    // Ambil 5 notifikasi UNREAD TERBARU untuk panel
+    const unreadNotifs = [...state.notifications]
+        .filter(n => !n.read)
         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
         .slice(0, 5);
     
-    if (recentNotifs.length === 0) {
+    if (unreadNotifs.length === 0) {
         panel.innerHTML = `
             <div style="text-align: center; padding: 30px; color: var(--gray-500);">
-                <div style="font-size: 32px; margin-bottom: 10px;">🔔</div>
-                <div style="font-size: 14px;">Tidak ada notifikasi</div>
+                <div style="font-size: 32px; margin-bottom: 10px;">✅</div>
+                <div style="font-size: 14px;">Semua notifikasi sudah dibaca</div>
             </div>
         `;
         return;
     }
     
-    panel.innerHTML = recentNotifs.map(notif => `
-        <div class="notif-item ${!notif.read ? 'unread' : ''}" onclick="markNotificationAsRead('${notif.id}')">
+    panel.innerHTML = unreadNotifs.map(notif => `
+        <div class="notif-item unread" onclick="markNotificationAsRead('${notif.id}')">
             <div class="notif-icon">${notif.icon}</div>
             <div class="notif-content">
                 <div class="notif-title">${notif.title}</div>
@@ -249,29 +299,32 @@ window.markNotificationAsRead = function(id) {
     }
 };
 
-// Mark all as read
+// ===============================
+// ✅ MARK ALL AS READ - TANPA MENGHAPUS NOTIFIKASI
+// ===============================
 window.markAllNotificationsAsRead = function() {
-    console.log('Marking ALL notifications as read');
+    console.log('Marking ALL notifications as read (keeping history)');
     
-    // Tandai semua notifikasi sebagai read
+    // Tandai semua notifikasi sebagai read (status dibaca)
+    // TAPI TIDAK MENGHAPUS ARRAY notifikasi
     state.notifications.forEach(n => n.read = true);
     
-    // Update semua UI
+    // Update UI - badge akan hilang karena unreadCount = 0
     updateNotificationBadges();
     updateNotificationsPanel();
     
-    // Update halaman notifications jika ada
+    // Update halaman notifications jika sedang dibuka
     if (typeof window.loadNotifications === 'function') {
         window.loadNotifications();
     }
     
-    // Tampilkan pesan sukses
-    showToast('Semua notifikasi telah ditandai dibaca');
+    showToast('Semua notifikasi telah ditandai dibaca', 'success');
 };
 
-// Simple toast function
-function showToast(message) {
-    // Cek apakah sudah ada toast container
+// ===============================
+// 🔔 TOAST FUNCTION
+// ===============================
+function showToast(message, type = 'info') {
     let toastContainer = document.getElementById('toastContainer');
     
     if (!toastContainer) {
@@ -286,9 +339,15 @@ function showToast(message) {
         document.body.appendChild(toastContainer);
     }
     
+    const colors = {
+        success: '#2ecc71',
+        error: '#e74c3c',
+        info: '#3498db'
+    };
+    
     const toast = document.createElement('div');
     toast.style.cssText = `
-        background: var(--primary);
+        background: ${colors[type] || colors.info};
         color: white;
         padding: 12px 20px;
         border-radius: 8px;
@@ -296,8 +355,10 @@ function showToast(message) {
         box-shadow: 0 3px 10px rgba(0,0,0,0.2);
         animation: slideIn 0.3s ease;
         font-size: 14px;
+        cursor: pointer;
     `;
     toast.textContent = message;
+    toast.onclick = () => toast.remove();
     
     toastContainer.appendChild(toast);
     
@@ -311,7 +372,6 @@ function showToast(message) {
 // 🔊 SOUND & ANIMATION
 // ===============================
 function playNotificationSound() {
-    // CEK PENTING: Hanya mainkan suara jika ada notifikasi BELUM DIBACA
     const unreadCount = state.notifications.filter(n => !n.read).length;
     
     if (unreadCount === 0) {
@@ -322,18 +382,12 @@ function playNotificationSound() {
     const audio = document.getElementById("notificationSound");
     if (!audio) return;
     
-    // Cek apakah suara diaktifkan di settings
     const soundEnabled = localStorage.getItem("wo_sound_enabled") !== "false";
-    if (!soundEnabled) {
-        console.log('Sound disabled in settings');
-        return;
-    }
+    if (!soundEnabled) return;
     
-    // Set volume dari settings
     const volume = localStorage.getItem("wo_volume") || 80;
     audio.volume = volume / 100;
     
-    // Set sound file dari settings
     const selectedSound = localStorage.getItem("wo_selected_sound") || "notification4";
     let soundFile = 'sounds/notification4.wav';
     switch(selectedSound) {
@@ -344,13 +398,8 @@ function playNotificationSound() {
     }
     audio.src = soundFile;
     
-    // Mainkan suara
     audio.currentTime = 0;
-    audio.play().catch(err => {
-        console.log('Audio play failed:', err);
-    });
-    
-    console.log('🔔 Notification sound played');
+    audio.play().catch(err => console.log('Audio play failed:', err));
 }
 
 function animateNotificationBell() {
@@ -381,7 +430,6 @@ function updateDate() {
 // 🎧 EVENT LISTENERS
 // ===============================
 function setupEventListeners() {
-    // Notification icon click
     const notificationIcon = document.getElementById('notificationIcon') || 
                             document.getElementById('notificationBell');
     const notificationsPanel = document.getElementById('notificationsPanel');
@@ -393,7 +441,6 @@ function setupEventListeners() {
         });
     }
 
-    // Mark all read button
     const markAllRead = document.getElementById('markAllRead') || 
                         document.getElementById('markPanelRead') ||
                         document.getElementById('markAllReadBtn');
@@ -406,7 +453,6 @@ function setupEventListeners() {
         });
     }
 
-    // Click outside to close panel
     document.addEventListener("click", (e) => {
         if (notificationsPanel && 
             !notificationsPanel.contains(e.target) && 
@@ -468,40 +514,27 @@ function initDateTime() {
 // ===============================
 function formatDate(dateString) {
     if (!dateString) return '-';
-    
     try {
-        console.log('Formatting date:', dateString); 
         let cleanDate = dateString;
         if (dateString.includes(' ')) {
-            cleanDate = dateString.split(' ')[0];
+            cleanDate = dateString.split(' ')[0]; 
         }
-        
-        if (cleanDate.includes('T')) {
-            cleanDate = cleanDate.split('T')[0];
-        }
-        
-        const parts = cleanDate.split('-');
-        if (parts.length === 3) {
-            const [year, month, day] = parts;
-            
-            if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
-                return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
-            }
-        }
-        
-        const date = new Date(dateString);
-        if (!isNaN(date.getTime())) {
-            const day = String(date.getDate()).padStart(2, '0');
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const year = date.getFullYear();
+        const [year, month, day] = cleanDate.split('-');
+        if (year && month && day) {
             return `${day}/${month}/${year}`;
         }
         
-        console.warn('Could not parse date:', dateString);
-        return dateString;
+        const date = new Date(dateString);
+        if (!isNaN(date)) {
+            const d = String(date.getDate()).padStart(2, '0');
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const y = date.getFullYear();
+            return `${d}/${m}/${y}`;
+        }
         
+        return dateString;
     } catch (error) {
-        console.error('Error in formatDate:', error);
+        console.warn('Error formatting date:', dateString);
         return dateString;
     }
 }
@@ -522,11 +555,8 @@ function formatTimeAgo(date) {
 }
 
 // ===============================
-// 🚀 START APP
+// 💅 CSS ANIMATIONS
 // ===============================
-document.addEventListener('DOMContentLoaded', initApp);
-
-// Tambahkan CSS animation untuk toast
 const style = document.createElement('style');
 style.textContent = `
     @keyframes slideIn {
@@ -553,8 +583,16 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Expose functions globally
+// ===============================
+// 🚀 START APP
+// ===============================
+document.addEventListener('DOMContentLoaded', initApp);
+
+// ===============================
+// 🌐 EXPOSE GLOBAL FUNCTIONS
+// ===============================
 window.fetchAllWorkOrders = fetchAllWorkOrders;
 window.formatDate = formatDate;
 window.markNotificationAsRead = markNotificationAsRead;
 window.markAllNotificationsAsRead = markAllNotificationsAsRead;
+window.showToast = showToast;
